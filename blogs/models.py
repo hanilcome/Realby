@@ -8,7 +8,16 @@ from users.models import User
 class Topic(models.Model):
     """운영자가 지정한 토픽"""
 
-    topic_name = models.CharField(max_length=30, null=True, blank=True)
+    class TopicChoices(models.TextChoices):
+        LIFE = "LIFE", "일상"
+        TRAVEL = "TRAVEL", "여행, 맛집"
+        CULTURE = "CULTURE", "문화"
+        IT = "IT", "IT"
+        SPORTS = "SPORTS", "스포츠"
+
+    topic_name = models.CharField(
+        choices=TopicChoices.choices, max_length=30, null=True, blank=True
+    )
 
     def __str__(self):
         return self.topic_name
