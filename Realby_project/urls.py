@@ -20,8 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path("", include("django_nextjs.urls")),
+    path("admin/", admin.site.urls),
+    path("/", include("django_nextjs.urls")),
     path("users/", include("users.urls")),
     path("blogs/", include("blogs.urls")),
     path("backoffice/", include("backoffice.urls")),

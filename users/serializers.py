@@ -1,13 +1,10 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.hashers import make_password
-
-
 from django.core.mail import EmailMessage
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 import random, string
-
 from .models import User
 from .tokens import user_verify_token
 from articles.models import Article
@@ -69,7 +66,7 @@ class LoginViewSerializer(TokenObtainPairSerializer):
 
         return token
 
-
+      
 class UserPasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -148,3 +145,4 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+      
