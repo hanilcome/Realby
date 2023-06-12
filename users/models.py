@@ -44,7 +44,7 @@ class User(AbstractBaseUser):
     profile_img = models.ImageField("프로필 이미지", null=True, blank=True, upload_to="%Y/%m")
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-
+    subscribes = models.ManyToManyField("self", symmetrical=False, related_name="my_subscribers", blank=True)
     objects = UserManager()
 
     USERNAME_FIELD = "email"  # 사용자 모델 고유식별자로 email 필드 지정
@@ -54,7 +54,7 @@ class User(AbstractBaseUser):
     ]  # 필수로 입력받을 필드 지정
 
     def __str__(self):
-        return self.email
+        return self.username
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
