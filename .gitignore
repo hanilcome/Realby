@@ -343,6 +343,7 @@ $RECYCLE.BIN/
 secrets.json
 **/migrations/**_initial.py
 **/migrations/**_
+**/migrations/**
 
-!**/migrations/_init_.py
+**/migrations/_init_.py
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,visualstudiocode,python,django
