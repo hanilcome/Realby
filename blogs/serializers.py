@@ -36,7 +36,7 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ["ctg_name"]
+        fields = "category"
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -70,4 +70,4 @@ class CommentSerializer(serializers.ModelSerializer):
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ["comment"]
+        fields = "comment"
