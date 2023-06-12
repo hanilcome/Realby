@@ -2,7 +2,7 @@ from django.urls import path
 from blogs import views
 
 urlpatterns = [
-    path(
+    path( 
         "blogcreate/",
         views.BlogCreateView.as_view(),
         name="blogcreateview",
@@ -13,7 +13,7 @@ urlpatterns = [
         name="blogview",
     ),
     path(
-        "<int:blog_id>/<int:category_id>/",
+        "<int:blog_id>/category/<int:category_id>/",
         views.CategoryView.as_view(),
         name="categoryview",
     ),
@@ -38,8 +38,13 @@ urlpatterns = [
         name="commentview",
     ),
     path(
-        "<int:comment_id>/",
+        "comments/<int:comment_id>/",
         views.CommentView.as_view(),
         name="commentview",
+    ),
+    path(
+        "hits/<int:article_id>/",
+        views.ArticleHitView.as_view(),
+        name="article_hit_view",
     ),
 ]

@@ -7,8 +7,7 @@ from django.utils.encoding import force_bytes
 import random, string
 from .models import User
 from .tokens import user_verify_token
-from articles.models import Article
-from articles.serializers import ArticleListSerializer
+
 
 
 # 랜덤 영문숫자 6글자의 비밀번호를 return하는 함수
@@ -61,12 +60,12 @@ class LoginViewSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         # Add custom claims
-        token["nickname"] = user.nickname
         token["email"] = user.email
+        token["username"] = user.username
 
         return token
 
-      
+
 class UserPasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -88,39 +87,39 @@ class UserPasswordSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    articles = serializers.SerializerMethodField()
+# class UserProfileSerializer(serializers.ModelSerializer):
+#     articles = serializers.SerializerMethodField()
 
-    def get_articles(self, obj):
-        articles = obj.my_articles.all()  # user와 관련된 Article 객체들을 가져옴
-        article_serializer = ArticleListSerializer(articles, many=True)
-        return article_serializer.data
+#     def get_articles(self, obj):
+#         articles = obj.my_articles.all()  # user와 관련된 Article 객체들을 가져옴
+#         article_serializer = ArticleListSerializer(articles, many=True)
+#         return article_serializer.data
 
-    def get_followers_count(self, obj):
-        return obj.followers.count()
+#     def get_followers_count(self, obj):
+#         return obj.followers.count()
 
-    def get_followings_count(self, obj):
-        return obj.followings.count()
+#     def get_followings_count(self, obj):
+#         return obj.followings.count()
 
-    articles = serializers.SerializerMethodField()
+#     articles = serializers.SerializerMethodField()
 
-    def get_articles(self, obj):
-        articles = Article.objects.filter(pk=obj.id)
-        serializer = ArticleListSerializer(articles, many=True)
-        return serializer.data
+#     def get_articles(self, obj):
+#         articles = Article.objects.filter(pk=obj.id)
+#         serializer = ArticleListSerializer(articles, many=True)
+#         return serializer.data
 
-    class Meta:
-        model = User
-        fields = (
-            "id",
-            "email",
-            "nickname",
-            "profile_img",
-            "fashion",
-            "followers",
-            "followings",
-            "articles",
-        )
+#     class Meta:
+#         model = User
+#         fields = (
+#             "id",
+#             "email",
+#             "nickname",
+#             "profile_img",
+#             "fashion",
+#             "followers",
+#             "followings",
+#             "articles",
+#         )
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -145,4 +144,4 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
-      
+
