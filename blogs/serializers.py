@@ -36,7 +36,7 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ["ctg_name"]
+        fields = "category"
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -70,4 +70,20 @@ class CommentSerializer(serializers.ModelSerializer):
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ["comment"]
+        fields = "comment"
+        
+        
+class ArticleHitSerializer(serializers.ModelSerializer):
+    def get_client_ip(request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+    
+    class Meta:
+        model = ArticleHits
+        fields = ""
+
+

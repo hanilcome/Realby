@@ -13,7 +13,6 @@ from users.serializers import (
     UserUpdateSerializer,
     LoginViewSerializer,
 )
-
 from .tokens import user_verify_token
 
 
@@ -37,7 +36,7 @@ class LoginView(TokenObtainPairView):
 
     serializer_class = LoginViewSerializer
 
-
+    
 class MyProfileView(APIView):
     # 유저 정보 요청, 수정, 회원 탈퇴
 
