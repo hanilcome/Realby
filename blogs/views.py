@@ -17,16 +17,29 @@ class BlogView(APIView):
         """블로그정보 불러오기"""
         blog = get_object_or_404(Blog, id=blog_id)
         serializer = BlogSerializer(blog)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, blog_id):
+        """카테고리 생성"""
+        serializers = CategoryCreateSerializer(data=request.data)
+        if serializers.is_valid():
+            serializers.save(blog_id=blog_id)
+            return Response({"message": "카테고리 생성 완료"}, status=status.HTTP_201_CREATED)
+        elif Category.objects.filter().exists():
+            return Response(
+                {"message": "이미 존재하는 카테고리입니다"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class BlogCreateView(APIView):
+    def post(self, request):
         """블로그 개설"""
-        serializer = BlogSerializer(data=request.data)
+
+        serializer = BlogCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user, id=blog_id)
+            serializer.save(user=request.user)
             return Response({"message": "블로그 개설완료"}, status=status.HTTP_201_CREATED)
-        elif Blog.objects.filter(blog_name=request.blog_name).exists():
+        elif Blog.objects.filter().exists():
             return Response(
                 {"message": "이미 존재하는 블로그입니다"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -48,17 +61,6 @@ class CategoryView(APIView):
         serializer = self.article_serializer(category_articles, many=True)
         return Response(serializer.data)
 
-    def post(self, request, blog_id):
-        """카테고리 생성"""
-        serializers = CategorySerializer(data=request.data)
-        if serializers.is_valid():
-            serializers.save(user=request.user, id=blog_id)
-            return Response({"message": "카테고리 생성 완료"}, status=status.HTTP_201_CREATED)
-        elif Category.objects.filter(ctg_name=request.ctg_name).exists():
-            return Response(
-                {"message": "이미 존재하는 카테고리입니다"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
 
 class ArticleView(APIView):
     """게시글"""
@@ -69,11 +71,11 @@ class ArticleView(APIView):
         serializer = ArticleSerializer(article)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, category_id):
+    def post(self, request):
         """게시글 작성"""
         serializer = ArticleCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user, category_id=category_id)
+            serializer.save(user=request.user)
             return Response({"message": "게시글 작성 완료"}, status=status.HTTP_201_CREATED)
 
     def put(self, request, article_id):
@@ -107,28 +109,56 @@ class ArticleLikeView(APIView):
 
     def post(self, request, article_id):
         """게시글 공감누르기"""
-        pass
-
-    pass
+        article = get_object_or_404(Article, id=article_id)
+        try:
+            articlelikes = Like.objects.get(article=article, user=request.user)
+            articlelikes.delete()
+            return Response({"message": "좋아요를 취소했습니다"}, status=status.HTTP_200_OK)
+        except Like.DoesNotExist:
+            articlelikes = Like.objects.create(article=article, user=request.user)
+            return Response({"message": "좋아요를 눌렀습니다"}, status=status.HTTP_200_OK)
 
 
 class CommentView(APIView):
     """댓글"""
 
-    def get(self, request, comment_id):
+    def get(self, request, article_id):
         """댓글 불러오기"""
-        pass
+        article = Article.objects.get(id=article_id)
+        comments = article.comments.all()
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, article_id):
         """댓글 작성"""
-        pass
+        serializer = CommentCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(
+                user=request.user, article=Article.objects.get(pk=article_id)
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
 
     def put(self, request, comment_id):
         """댓글 수정"""
-        pass
+        comment = get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user:
+            serializer = CommentDetailSerializer(
+                comment, data=request.data, partial=True
+            )
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("수정 권한이 없습니다.", status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, comment_id):
-        """댓글 삭제"""
-        pass
-
-    pass
+        comment = get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user:
+            comment.delete()
+            return Response("삭제 완료", status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response("수정 권한이 없습니다.", status=status.HTTP_403_FORBIDDEN)
