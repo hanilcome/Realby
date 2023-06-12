@@ -3,9 +3,9 @@ from blogs import views
 
 urlpatterns = [
     path(
-        "",
-        views.BlogView.as_view(),
-        name="blogview",
+        "blogcreate/",
+        views.BlogCreateView.as_view(),
+        name="blogcreateview",
     ),
     path(
         "<int:blog_id>/",
@@ -18,9 +18,9 @@ urlpatterns = [
         name="categoryview",
     ),
     path(
-        "<int:blog_id>/write/",
+        "write/",
         views.ArticleView.as_view(),
-        name="articleview",
+        name="articlecreateview",
     ),
     path(
         "<int:blog_id>/<int:article_id>/",
@@ -38,7 +38,7 @@ urlpatterns = [
         name="commentview",
     ),
     path(
-        "<int:article_id>/<int:comment_id>/",
+        "<int:comment_id>/",
         views.CommentView.as_view(),
         name="commentview",
     ),
