@@ -66,13 +66,22 @@ class Article(models.Model):
     title = models.CharField(max_length=50, verbose_name="제목")
     content = models.TextField(verbose_name="내용")
     image = models.ImageField(blank=True, null=True)
-    article_hits = models.PositiveIntegerField(default=0, verbose_name="조회수")
+    hits = models.PositiveIntegerField(default=0, verbose_name="조회수")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="수정일")
 
     def __str__(self):
         return self.title
 
+
+class ArticleHits(models.Model):
+    client_ip = models.GenericIPAddressField(protocol='both', unpack_ipv4=True, null=True, verbose_name='사용자 IP주소')
+    date = models.DateField(auto_now_add=True, verbose_name='조회 날짜')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="ipaddress")
+
+    def __str__(self):
+        return str(self.article.id)
+    
 
 class Comment(models.Model):
     """댓글"""
