@@ -53,10 +53,9 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 class ArticleCreateSerializer(serializers.ModelSerializer):
     """Article create serializer"""
-
     class Meta:
         model = Article
-        fields = ["title", "content", "image"]
+        fields = "__all__"
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -64,15 +63,22 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ["user", "comment", "created_at"]
+        fields = ["id","user", "comment", "created_at", "article"]
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = "comment"
+        fields = ("comment",)
         
+
+class CommentDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comment
+        fields = ("comment",)
         
+
 class ArticleHitSerializer(serializers.ModelSerializer):
     def get_client_ip(request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -86,4 +92,16 @@ class ArticleHitSerializer(serializers.ModelSerializer):
         model = ArticleHits
         fields = ""
 
+class BlogSubscribeSerializer(serializers.ModelSerializer):
+    subscribes = serializers.StringRelatedField(many=True)
+    my_subscribers = serializers.StringRelatedField(many=True)
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "my_subscribers",
+            "subscribes"
+        )
 

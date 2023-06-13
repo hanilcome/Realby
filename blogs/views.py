@@ -9,7 +9,15 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 import threading
 
-# Create your views here.
+
+class MainView(APIView):
+    def get(self, request):
+        """메인피드 불러오기"""
+        articles = Article.objects.all().order_by("-hits")
+        print(articles)
+        serializer = ArticleSerializer(articles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class BlogView(APIView):
     """블로그 전체"""
 
@@ -18,7 +26,7 @@ class BlogView(APIView):
         blog = get_object_or_404(Blog, id=blog_id)
         serializer = BlogSerializer(blog)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
+    
     def post(self, request, blog_id):
         """카테고리 생성"""
         serializers = CategoryCreateSerializer(data=request.data)
@@ -49,6 +57,30 @@ class BlogCreateView(APIView):
             )
 
 
+class SubscribeView(APIView):
+    """구독한 특정 유저의 이름, 아이디 목록을 반환"""
+    def get(self, request, blog_id):
+        user = get_object_or_404(User, id=blog_id)
+        serializer = BlogSubscribeSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    """특정 유저를 구독함"""
+    def post(self, request, blog_id):
+        you = get_object_or_404(User, id=blog_id)
+        me = request.user
+        if me != you:
+            if me in you.my_subscribers.all():
+                you.my_subscribers.remove(me)
+                return Response("구독 취소", status=status.HTTP_204_NO_CONTENT)
+            else:
+                you.my_subscribers.add(me)
+                return Response("구독", status=status.HTTP_200_OK)
+        else:
+            return Response(
+                "자기 자신은 구독 할 수 없습니다!", status=status.HTTP_205_RESET_CONTENT
+            )
+            
+
 class CategoryView(APIView):
     """카테고리"""
 
@@ -63,16 +95,14 @@ class CategoryView(APIView):
 
 
 class ArticleView(APIView):
-    """게시글"""
-
-    def get(self, request, blog_id, article_id):
-        """상세게시글 불러오기"""
-        article = get_object_or_404(Article, id=article_id)
-        serializer = ArticleSerializer(article)
+    """블로그 전체게시글"""
+    def get(self, request, blog_id):
+        articles = Article.objects.filter(blog_id=blog_id).order_by("-hits")
+        serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, blog_id):
-        """게시글 작성"""
+    """게시글 작성"""
+    def post(self, request):
         serializer = ArticleCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
@@ -82,9 +112,46 @@ class ArticleView(APIView):
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
 
-    def put(self, request, article_id):
+class ArticleDetailView(APIView):
+    """일정 시간 지나면 ip 자동 삭제하는 함수"""
+    def timer_delete(article_id, hit):
+        articlehit = ArticleHits.objects.filter(article_id=article_id, client_ip=hit)
+        print(articlehit)
+        articlehit.delete()
+        
+    """상세게시글 불러오기"""
+    def get(self, request, blog_id, article_id):
+        article = get_object_or_404(Article, blog_id=blog_id, id=article_id)
+        serializer = ArticleSerializer(article)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    """조회수 기능(ip기반)"""
+    def post(self, request, blog_id, article_id):
+        article = get_object_or_404(Article, blog_id=blog_id, id=article_id)
+        hit = ArticleHitSerializer.get_client_ip(request)
+        articlehit = ArticleHits.objects.filter(article_id=article_id).values()
+        serializer = ArticleHitSerializer(data=request.data)
+        
+        a = 0
+        for n in range(len(articlehit)):
+            if hit == articlehit[n]['client_ip']:
+                a += 1
+                
+        if bool(articlehit) is False or a == 0:
+            if serializer.is_valid():
+                    article.hits += 1
+                    article.save()
+                    serializer.save(client_ip=hit ,article_id=article_id, blog_id=blog_id)
+                    threading.Timer(20, ArticleDetailView.timer_delete, args=(article_id, hit)).start()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response("동일한 ip주소가 존재합니다.", status=status.HTTP_205_RESET_CONTENT)
+    
+    def put(self, request, blog_id, article_id):
         """게시글 수정"""
-        article = get_object_or_404(Article, id=article_id)
+        article = get_object_or_404(Article, blog_id=blog_id, id=article_id)
         if request.user == article.user:
             serializer = ArticleSerializer(
                 article,
@@ -98,46 +165,14 @@ class ArticleView(APIView):
         else:
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
-    def delete(self, request, article_id):
+    def delete(self, request, blog_id, article_id):
         """게시글 삭제"""
-        article = get_object_or_404(Article, id=article_id)
+        article = get_object_or_404(Article,  blog_id=blog_id, id=article_id)
         if request.user == article.user:
             article.delete()
             return Response("삭제완료", status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
-
-
-class ArticleHitView(APIView):
-    def timer_delete(article_id, hit):
-        articlehit = ArticleHits.objects.filter(article_id=article_id, client_ip=hit)
-        print(articlehit)
-        articlehit.delete()
-        
-    # 조회수 기능 (ip기반)
-    def post(self, request, article_id):
-        article = get_object_or_404(Article, id=article_id)
-        hit = ArticleHitSerializer.get_client_ip(request)
-        articlehit = ArticleHits.objects.filter(article_id=article_id).values()
-        serializer = ArticleHitSerializer(data=request.data)
-        print(articlehit)
-        
-        a = 0
-        for n in range(len(articlehit)):
-            if hit == articlehit[n]['client_ip']:
-                a += 1
-                
-        if bool(articlehit) is False or a == 0:
-            if serializer.is_valid():
-                    article.hits += 1
-                    article.save()
-                    serializer.save(client_ip=hit ,article=Article.objects.get(pk=article_id))
-                    threading.Timer(300, ArticleHitView.timer_delete, args=(article_id, hit)).start()
-                    return Response(serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
-        else:
-            return Response("동일한 ip주소가 존재합니다.", status=status.HTTP_205_RESET_CONTENT)
 
 
 class ArticleLikeView(APIView):
@@ -198,3 +233,5 @@ class CommentView(APIView):
             return Response("삭제 완료", status=status.HTTP_204_NO_CONTENT)
         else:
             return Response("수정 권한이 없습니다.", status=status.HTTP_403_FORBIDDEN)
+
+

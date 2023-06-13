@@ -3,6 +3,11 @@ from blogs import views
 
 urlpatterns = [
     path( 
+        "",
+        views.MainView.as_view(),
+        name="mainview",
+    ),
+    path( 
         "blogcreate/",
         views.BlogCreateView.as_view(),
         name="blogcreateview",
@@ -12,20 +17,25 @@ urlpatterns = [
         views.BlogView.as_view(),
         name="blogview",
     ),
-    path(
-        "<int:blog_id>/category/<int:category_id>/",
-        views.CategoryView.as_view(),
-        name="categoryview",
-    ),
+    # path(
+    #     "<int:blog_id>/category/<int:category_id>/",
+    #     views.CategoryView.as_view(),
+    #     name="categoryview",
+    # ),
     path(
         "write/",
         views.ArticleView.as_view(),
         name="articlecreateview",
     ),
     path(
-        "<int:blog_id>/<int:article_id>/",
+        "<int:blog_id>/detail/",
         views.ArticleView.as_view(),
         name="articleview",
+    ),
+    path(
+        "<int:blog_id>/<int:article_id>/",
+        views.ArticleDetailView.as_view(),
+        name="articledetailview",
     ),
     path(
         "<int:article_id>/like/",
@@ -43,8 +53,8 @@ urlpatterns = [
         name="commentview",
     ),
     path(
-        "hits/<int:article_id>/",
-        views.ArticleHitView.as_view(),
-        name="article_hit_view",
+        "subscribe/<int:blog_id>/", 
+        views.SubscribeView.as_view(),
+        name="user_subscribe_view"
     ),
 ]
