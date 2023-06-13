@@ -36,12 +36,16 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = "category"
+        fields = "__all__"
 
 
 class ArticleSerializer(serializers.ModelSerializer):
+    blog = serializers.SerializerMethodField()
+    
+    def get_blog(self, obj):
+        return obj.blog.blog_name
+    
     """Article serializer"""
-
     class Meta:
         model = Article
         fields = "__all__"
@@ -52,10 +56,12 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class ArticleCreateSerializer(serializers.ModelSerializer):
+
+    
     """Article create serializer"""
     class Meta:
         model = Article
-        fields = "__all__"
+        fields = ("title", "content")
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -97,10 +103,10 @@ class BlogSubscribeSerializer(serializers.ModelSerializer):
     my_subscribers = serializers.StringRelatedField(many=True)
 
     class Meta:
-        model = User
+        model = Blog
         fields = (
             "id",
-            "username",
+            "blog_name",
             "my_subscribers",
             "subscribes"
         )

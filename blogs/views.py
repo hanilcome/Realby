@@ -14,24 +14,23 @@ class MainView(APIView):
     def get(self, request):
         """메인피드 불러오기"""
         articles = Article.objects.all().order_by("-hits")
-        print(articles)
         serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class BlogView(APIView):
     """블로그 전체"""
 
-    def get(self, request, blog_id):
+    def get(self, request, blog_name):
         """블로그정보 불러오기"""
-        blog = get_object_or_404(Blog, id=blog_id)
+        blog = get_object_or_404(Blog, blog_name=blog_name)
         serializer = BlogSerializer(blog)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def post(self, request, blog_id):
+    def post(self, request, blog_name):
         """카테고리 생성"""
         serializers = CategoryCreateSerializer(data=request.data)
         if serializers.is_valid():
-            serializers.save(blog_id=blog_id)
+            serializers.save(blog_name=blog_name)
             return Response({"message": "카테고리 생성 완료"}, status=status.HTTP_201_CREATED)
         elif Category.objects.filter().exists():
             return Response(
@@ -42,31 +41,34 @@ class BlogView(APIView):
 class BlogCreateView(APIView):
     def post(self, request):
         """블로그 개설"""
-
+        blog = Blog.objects.filter()
         serializer = BlogCreateSerializer(data=request.data)
+        
+        a=0
+        for n in range(len(blog)):
+            if blog[n].user_id == request.user.id:
+                a += 1
+                
         if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response({"message": "블로그 개설완료"}, status=status.HTTP_201_CREATED)
-        elif Blog.objects.filter().exists():
-            return Response(
-                {"message": "이미 존재하는 블로그입니다"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            if a == 0: 
+                serializer.save(user=request.user)
+                return Response({"message": "블로그 개설완료"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"message": "이미 개설된 블로그가 존재합니다!"}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
-
+            return Response(serializer.errors, status=status.HTTP_204_NO_CONTENT)
 
 class SubscribeView(APIView):
     """구독한 특정 유저의 이름, 아이디 목록을 반환"""
-    def get(self, request, blog_id):
-        user = get_object_or_404(User, id=blog_id)
-        serializer = BlogSubscribeSerializer(user)
+    def get(self, request, blog_name):
+        blog = get_object_or_404(Blog, blog_name=blog_name)
+        serializer = BlogSubscribeSerializer(blog)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     """특정 유저를 구독함"""
-    def post(self, request, blog_id):
-        you = get_object_or_404(User, id=blog_id)
+    def post(self, request, blog_name):
+        blog = get_object_or_404(Blog, blog_name=blog_name)
+        you = get_object_or_404(Blog, id=blog.id)
         me = request.user
         if me != you:
             if me in you.my_subscribers.all():
@@ -96,16 +98,18 @@ class CategoryView(APIView):
 
 class ArticleView(APIView):
     """블로그 전체게시글"""
-    def get(self, request, blog_id):
-        articles = Article.objects.filter(blog_id=blog_id).order_by("-hits")
+    def get(self, request, blog_name):
+        blog = Blog.objects.filter(blog_name=blog_name)
+        articles = Article.objects.filter(blog_id=blog[0].id).order_by("-hits")
         serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     """게시글 작성"""
-    def post(self, request):
+    def post(self, request, blog_name):
+        blog = Blog.objects.filter(blog_name=blog_name)
         serializer = ArticleCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            serializer.save(user=request.user, blog_id=blog[0].id)
             return Response({"message": "게시글 작성 완료"}, status=status.HTTP_201_CREATED)
         else:
             return Response(
@@ -120,14 +124,16 @@ class ArticleDetailView(APIView):
         articlehit.delete()
         
     """상세게시글 불러오기"""
-    def get(self, request, blog_id, article_id):
-        article = get_object_or_404(Article, blog_id=blog_id, id=article_id)
+    def get(self, request, blog_name, article_id):
+        blog = Blog.objects.filter(blog_name=blog_name)
+        article = get_object_or_404(Article, blog_id=blog[0].id, id=article_id)
         serializer = ArticleSerializer(article)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     """조회수 기능(ip기반)"""
-    def post(self, request, blog_id, article_id):
-        article = get_object_or_404(Article, blog_id=blog_id, id=article_id)
+    def post(self, request, blog_name, article_id):
+        blog = Blog.objects.filter(blog_name=blog_name)
+        article = get_object_or_404(Article, blog_id=blog[0].id, id=article_id)
         hit = ArticleHitSerializer.get_client_ip(request)
         articlehit = ArticleHits.objects.filter(article_id=article_id).values()
         serializer = ArticleHitSerializer(data=request.data)
@@ -141,7 +147,7 @@ class ArticleDetailView(APIView):
             if serializer.is_valid():
                     article.hits += 1
                     article.save()
-                    serializer.save(client_ip=hit ,article_id=article_id, blog_id=blog_id)
+                    serializer.save(client_ip=hit ,article_id=article_id, blog_id=blog[0].id)
                     threading.Timer(20, ArticleDetailView.timer_delete, args=(article_id, hit)).start()
                     return Response(serializer.data, status=status.HTTP_200_OK)
             else:
@@ -149,11 +155,12 @@ class ArticleDetailView(APIView):
         else:
             return Response("동일한 ip주소가 존재합니다.", status=status.HTTP_205_RESET_CONTENT)
     
-    def put(self, request, blog_id, article_id):
+    def put(self, request, blog_name, article_id):
         """게시글 수정"""
-        article = get_object_or_404(Article, blog_id=blog_id, id=article_id)
+        blog = Blog.objects.filter(blog_name=blog_name)
+        article = get_object_or_404(Article, blog_id=blog[0].id, id=article_id)
         if request.user == article.user:
-            serializer = ArticleSerializer(
+            serializer = ArticleCreateSerializer(
                 article,
                 data=request.data,
             )
@@ -165,9 +172,10 @@ class ArticleDetailView(APIView):
         else:
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
-    def delete(self, request, blog_id, article_id):
+    def delete(self, request, blog_name, article_id):
         """게시글 삭제"""
-        article = get_object_or_404(Article,  blog_id=blog_id, id=article_id)
+        blog = Blog.objects.filter(blog_name=blog_name)
+        article = get_object_or_404(Article,  blog_id=blog[0].id, id=article_id)
         if request.user == article.user:
             article.delete()
             return Response("삭제완료", status=status.HTTP_204_NO_CONTENT)

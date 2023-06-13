@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import date
 
-
 class UserManager(BaseUserManager):
     def create_user(self, email, username, birthdate, password=None):
         if not email:
@@ -44,7 +43,6 @@ class User(AbstractBaseUser):
     profile_img = models.ImageField("프로필 이미지", null=True, blank=True, upload_to="%Y/%m")
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    subscribes = models.ManyToManyField("self", symmetrical=False, related_name="my_subscribers", blank=True)
     objects = UserManager()
 
     USERNAME_FIELD = "email"  # 사용자 모델 고유식별자로 email 필드 지정
