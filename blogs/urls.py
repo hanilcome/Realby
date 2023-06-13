@@ -13,27 +13,27 @@ urlpatterns = [
         name="blogcreateview",
     ),
     path(
-        "<int:blog_id>/",
+        "<str:blog_name>/",
         views.BlogView.as_view(),
         name="blogview",
     ),
-    # path(
-    #     "<int:blog_id>/category/<int:category_id>/",
-    #     views.CategoryView.as_view(),
-    #     name="categoryview",
-    # ),
     path(
-        "write/",
+        "<int:blog_id>/category/<int:category_id>/",
+        views.CategoryView.as_view(),
+        name="categoryview",
+    ),
+    path(
+        "<str:blog_name>/write/",
         views.ArticleView.as_view(),
         name="articlecreateview",
     ),
     path(
-        "<int:blog_id>/detail/",
+        "<str:blog_name>/detail/",
         views.ArticleView.as_view(),
         name="articleview",
     ),
     path(
-        "<int:blog_id>/<int:article_id>/",
+        "<str:blog_name>/detail/<int:article_id>/",
         views.ArticleDetailView.as_view(),
         name="articledetailview",
     ),
@@ -53,7 +53,7 @@ urlpatterns = [
         name="commentview",
     ),
     path(
-        "subscribe/<int:blog_id>/", 
+        "subscribe/<str:blog_name>/", 
         views.SubscribeView.as_view(),
         name="user_subscribe_view"
     ),

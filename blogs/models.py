@@ -4,7 +4,6 @@ from users.models import User
 
 class Blog(models.Model):
     """블로그"""
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="블로거")
     blog_name = models.CharField(max_length=30, unique=True)
     blog_intro = models.TextField(blank=True, null=True)
@@ -18,8 +17,6 @@ class Blog(models.Model):
 
 class Category(models.Model):
     """유저가 직접 지정하는 카테고리"""
-
-    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, verbose_name="블로그")
     category = models.CharField(
         max_length=30,
         unique=True,
