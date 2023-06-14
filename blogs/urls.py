@@ -18,7 +18,12 @@ urlpatterns = [
         name="blogview",
     ),
     path(
-        "<int:blog_id>/category/<int:category_id>/",
+        "<str:blog_name>/category/",
+        views.CategoryView.as_view(),
+        name="categoryview",
+    ),
+    path(
+        "<str:blog_name>/category/<int:category_id>/",
         views.CategoryView.as_view(),
         name="categoryview",
     ),
@@ -36,11 +41,6 @@ urlpatterns = [
         "<str:blog_name>/detail/<int:article_id>/",
         views.ArticleDetailView.as_view(),
         name="articledetailview",
-    ),
-    path(
-        "<int:article_id>/like/",
-        views.ArticleLikeView.as_view(),
-        name="articlelikeview",
     ),
     path(
         "<int:article_id>/comments/",
