@@ -4,6 +4,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
+from rest_framework.permissions import IsAuthenticated
 from django.db.models.query_utils import Q
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import User
@@ -31,22 +32,36 @@ class UserView(APIView):
             )
 
 
+class EmailVerifyView(APIView):
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+            if user_verify_token.check_token(user, token):
+                User.objects.filter(pk=uid).update(is_active=True)
+                return Response({"message": "이메일 인증 완료"}, status=status.HTTP_200_OK)
+            return Response({"error": "인증 실패"}, status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
+            return Response({"error": "KEY ERROR"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class LoginView(TokenObtainPairView):
     """로그인 정보 전송 및 처리 요청"""
 
     serializer_class = LoginViewSerializer
 
-    
+
 class MyProfileView(APIView):
     # 유저 정보 요청, 수정, 회원 탈퇴
+    # 인증된 사용자 및 로그인된 사용자만 접근 가능
+    permission_classes = [IsAuthenticated]
 
     """
     유저 정보 요청
-    user_id로 아무나 프로필 조회 가능
     """
 
-    def get(self, request, user_id):
-        user = get_object_or_404(User, id=user_id)
+    def get(self, request):
+        user = request.user
         return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
     """
@@ -80,19 +95,6 @@ class MyProfileView(APIView):
             return Response(
                 {"message": "회원 탈퇴에 실패했습니다."}, status=status.HTTP_401_UNAUTHORIZED
             )
-
-
-class EmailVerifyView(APIView):
-    def get(self, request, uidb64, token):
-        try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
-            if user_verify_token.check_token(user, token):
-                User.objects.filter(pk=uid).update(is_active=True)
-                return Response({"message": "이메일 인증 완료"}, status=status.HTTP_200_OK)
-            return Response({"error": "인증 실패"}, status=status.HTTP_400_BAD_REQUEST)
-        except KeyError:
-            return Response({"error": "KEY ERROR"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # 유저의 이메일 정보로 패스워드를 리셋시켜주기
