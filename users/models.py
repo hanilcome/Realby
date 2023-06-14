@@ -5,14 +5,13 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import date
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, username, birthdate, password=None):
+    def create_user(self, email, username, password=None):
         if not email:
             raise ValueError("이메일을 입력하세요")
         if not username:
             raise ValueError("닉네임을 입력하세요")  # email, username을 필수값으로 지정
         user = self.model(
             username=username,
-            birthdate=birthdate,
             email=self.normalize_email(email),  # email 정규화한 후,
         )  # 유저 생성
 
@@ -20,11 +19,10 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, username, birthdate, password=None):
+    def create_superuser(self, email, username, password=None):
         user = self.create_user(
             email,
             username,
-            birthdate=birthdate,
             password=password,
         )  # 일반 유저를 생성한 후,
         user.is_admin = True  # 해당 유저를 관리자로 설정
@@ -35,24 +33,28 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.EmailField("이메일", max_length=255, unique=True)
-    username = models.CharField("닉네임", max_length=50, default="사용자", unique=True)
+    username = models.CharField("닉네임", max_length=50, unique=True)
     birthdate = models.DateField(
         "생년월일",
         validators=[MinValueValidator(date(1900, 1, 1)), MaxValueValidator(date.today)],
+        null=True,
+        blank=True,
     )
     profile_img = models.ImageField("프로필 이미지", null=True, blank=True, upload_to="%Y/%m")
-    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+
     objects = UserManager()
 
     USERNAME_FIELD = "email"  # 사용자 모델 고유식별자로 email 필드 지정
     REQUIRED_FIELDS = [
         "username",
-        "birthdate",
     ]  # 필수로 입력받을 필드 지정
 
     def __str__(self):
-        return self.username
+        return self.email
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"

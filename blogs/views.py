@@ -278,3 +278,20 @@ class CommentView(APIView):
             return Response("삭제 완료", status=status.HTTP_204_NO_CONTENT)
         else:
             return Response("수정 권한이 없습니다.", status=status.HTTP_403_FORBIDDEN)
+<<<<<<< HEAD
+=======
+
+class ReCommentView(APIView):
+    
+    def post(self, request, article_id, comment_id):
+        """대댓글 작성"""
+        
+        serializer = ReCommentCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(
+                user=request.user, article=Article.objects.get(pk=article_id), comment=Comment.objects.get(pk=comment_id)
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+>>>>>>> 0751e472f1de557513364b8e7bb24dfb784e9b54
