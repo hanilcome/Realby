@@ -43,12 +43,14 @@ class ArticleSerializer(serializers.ModelSerializer):
     blog = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
     
+    
     def get_blog(self, obj):
         return obj.blog.blog_name
     
     def get_category(self, obj):
         return obj.category.category
         
+    
     """Article serializer"""
     class Meta:
         model = Article
@@ -67,12 +69,21 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
         fields = ("title", "content", "category", "topic")
 
 
+class ReCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReComment
+        fields = ("id","user","recomment","created_at")
+
+
 class CommentSerializer(serializers.ModelSerializer):
+    recomments = ReCommentSerializer(many=True)
+
+    
     """Comment Serializer"""
 
     class Meta:
         model = Comment
-        fields = ["id","user", "comment", "created_at", "article"]
+        fields = ("id","user", "comment", "created_at", "article", "recomments")
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -87,6 +98,12 @@ class CommentDetailSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ("comment",)
         
+
+class ReCommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReComment
+        fields = ("recomment",)
+
 
 class ArticleHitSerializer(serializers.ModelSerializer):
     def get_client_ip(request):

@@ -53,6 +53,11 @@ urlpatterns = [
         name="commentview",
     ),
     path(
+        "<int:article_id>/comments/<int:comment_id>/",
+        views.ReCommentView.as_view(),
+        name="commentview",
+    ),
+    path(
         "subscribe/<str:blog_name>/", 
         views.SubscribeView.as_view(),
         name="user_subscribe_view"

@@ -88,6 +88,19 @@ class Comment(models.Model):
         return self.comment
 
 
+class ReComment(models.Model):
+    """대댓글"""
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="작성자") 
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, verbose_name="게시글")
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="recomments")
+    recomment = models.TextField(null=False, verbose_name="대댓글")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
+    
+    def __str__(self):
+        return self.recomment
+    
+    
 class Like(models.Model):
     """공감"""
 
