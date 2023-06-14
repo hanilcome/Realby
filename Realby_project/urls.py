@@ -22,7 +22,6 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("django_nextjs.urls")),
-    path('api/', include("users.urls")),
     path("users/", include("users.urls")),
     path("blogs/", include("blogs.urls")),
     path("backoffice/", include("backoffice.urls")),
