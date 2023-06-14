@@ -17,9 +17,9 @@ class Blog(models.Model):
 
 class Category(models.Model):
     """유저가 직접 지정하는 카테고리"""
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
     category = models.CharField(
         max_length=30,
-        unique=True,
         verbose_name="카테고리",
     )
 
@@ -27,39 +27,33 @@ class Category(models.Model):
         return self.category
 
 
-class TopicChoices(models.TextChoices):
-    LIFE = "LIFE", "일상"
-    TRAVEL = "TRAVEL", "여행, 맛집"
-    CULTURE = "CULTURE", "문화"
-    IT = "IT", "IT"
-    SPORTS = "SPORTS", "스포츠"
 
 
-class Topic(models.Model):
-    """운영자가 지정한 토픽"""
-
-    topic_name = models.CharField(
-        choices=TopicChoices.choices, max_length=30, null=True, blank=True
-    )
 
 
 class Article(models.Model):
+    
+    class TopicChoices(models.TextChoices):
+        LIFE = "LIFE", "일상"
+        TRAVEL = "TRAVEL", "여행, 맛집"
+        CULTURE = "CULTURE", "문화"
+        IT = "IT", "IT"
+        SPORTS = "SPORTS", "스포츠"
+        
     """게시글"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="작성자")
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name="blogs")
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
-        null=True,
         blank=True,
         verbose_name="카테고리",
     )
-    topic = models.ForeignKey(
-        Topic,
-        on_delete=models.CASCADE,
+    topic = models.CharField(
+        max_length=20,
+        choices=TopicChoices.choices,
         null=True,
-        blank=True,
-        verbose_name="토픽",
+        verbose_name="토픽"
     )
     title = models.CharField(max_length=50, verbose_name="제목")
     content = models.TextField(verbose_name="내용")

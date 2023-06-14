@@ -36,15 +36,19 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = ("category",)
 
 
 class ArticleSerializer(serializers.ModelSerializer):
     blog = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
     
     def get_blog(self, obj):
         return obj.blog.blog_name
     
+    def get_category(self, obj):
+        return obj.category.category
+        
     """Article serializer"""
     class Meta:
         model = Article
@@ -56,12 +60,11 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class ArticleCreateSerializer(serializers.ModelSerializer):
-
-    
+        
     """Article create serializer"""
     class Meta:
         model = Article
-        fields = ("title", "content")
+        fields = ("title", "content", "category", "topic")
 
 
 class CommentSerializer(serializers.ModelSerializer):
