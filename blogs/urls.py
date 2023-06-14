@@ -3,34 +3,44 @@ from blogs import views
 
 urlpatterns = [
     path( 
+        "",
+        views.MainView.as_view(),
+        name="mainview",
+    ),
+    path( 
         "blogcreate/",
         views.BlogCreateView.as_view(),
         name="blogcreateview",
     ),
     path(
-        "<int:blog_id>/",
+        "<str:blog_name>/",
         views.BlogView.as_view(),
         name="blogview",
     ),
     path(
-        "<int:blog_id>/category/<int:category_id>/",
+        "<str:blog_name>/category/",
         views.CategoryView.as_view(),
         name="categoryview",
     ),
     path(
-        "write/",
+        "<str:blog_name>/category/<int:category_id>/",
+        views.CategoryView.as_view(),
+        name="categoryview",
+    ),
+    path(
+        "<str:blog_name>/write/",
         views.ArticleView.as_view(),
         name="articlecreateview",
     ),
     path(
-        "<int:blog_id>/<int:article_id>/",
+        "<str:blog_name>/detail/",
         views.ArticleView.as_view(),
         name="articleview",
     ),
     path(
-        "<int:article_id>/like/",
-        views.ArticleLikeView.as_view(),
-        name="articlelikeview",
+        "<str:blog_name>/detail/<int:article_id>/",
+        views.ArticleDetailView.as_view(),
+        name="articledetailview",
     ),
     path(
         "<int:article_id>/comments/",
@@ -43,8 +53,8 @@ urlpatterns = [
         name="commentview",
     ),
     path(
-        "hits/<int:article_id>/",
-        views.ArticleHitView.as_view(),
-        name="article_hit_view",
+        "subscribe/<str:blog_name>/", 
+        views.SubscribeView.as_view(),
+        name="user_subscribe_view"
     ),
 ]

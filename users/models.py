@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import date
 
-
 class UserManager(BaseUserManager):
     def create_user(self, email, username, password=None):
         if not email:
@@ -42,11 +41,10 @@ class User(AbstractBaseUser):
         blank=True,
     )
     profile_img = models.ImageField("프로필 이미지", null=True, blank=True, upload_to="%Y/%m")
-    is_active = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
 
     objects = UserManager()
 

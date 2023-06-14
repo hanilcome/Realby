@@ -108,3 +108,4 @@ class UserPasswordView(APIView):
                 {"message": "비밀번호 수정 이메일을 전송했습니다."}, status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
