@@ -2,12 +2,12 @@ from django.urls import path
 from blogs import views
 
 urlpatterns = [
-    path( 
+    path(
         "",
         views.MainView.as_view(),
         name="mainview",
     ),
-    path( 
+    path(
         "blogcreate/",
         views.BlogCreateView.as_view(),
         name="blogcreateview",
@@ -53,8 +53,13 @@ urlpatterns = [
         name="commentview",
     ),
     path(
-        "subscribe/<str:blog_name>/", 
+        "subscribe/<str:blog_name>/",
         views.SubscribeView.as_view(),
-        name="user_subscribe_view"
+        name="user_subscribe_view",
+    ),
+    path(
+        "<int:user_id>/list/",
+        views.BlogList.as_view(),
+        name="bloglist",
     ),
 ]
