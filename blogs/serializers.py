@@ -47,8 +47,12 @@ class ArticleSerializer(serializers.ModelSerializer):
     def get_blog(self, obj):
         return obj.blog.blog_name
     
+    
     def get_category(self, obj):
-        return obj.category.category
+        if obj.category:
+            return obj.category.category
+        else:
+            pass
         
     
     """Article serializer"""

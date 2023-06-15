@@ -41,6 +41,15 @@ class BlogView(APIView):
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
 
+class BlogList(APIView):
+    
+    def get(self, request):
+        """블로그 전체 리스트"""
+        blog = Blog.objects.filter(user_id=request.user.id)
+        serializer = BlogSerializer(blog, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
 class BlogCreateView(APIView):
     
     def post(self, request):
