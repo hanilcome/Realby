@@ -108,9 +108,5 @@ class ReComment(models.Model):
     def __str__(self):
         return self.recomment
     
-    
-class Like(models.Model):
-    """공감"""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="작성자")
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, verbose_name="게시글")
+

@@ -13,6 +13,7 @@ from .pagination import PaginationManage
 
 
 class ArticlePagination(PageNumberPagination):
+    """페이지네이션 페이지 수"""
     page_size = 4
 
 
@@ -45,15 +46,6 @@ class BlogView(APIView):
         else:
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
-
-class BlogList(APIView):
-    
-    def get(self, request):
-        """블로그 전체 리스트"""
-        blog = Blog.objects.filter(user_id=request.user.id)
-        serializer = BlogSerializer(blog, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
     
 class BlogCreateView(APIView):
     def post(self, request):
@@ -276,7 +268,8 @@ class ArticleEmpathyView(APIView):
                 return Response("공감", status=status.HTTP_200_OK)
             
         else:
-            
+            article.empathys -= 1
+            article.save()
             article_empathy.delete()
             return Response("공감 취소", status=status.HTTP_205_RESET_CONTENT)
 
