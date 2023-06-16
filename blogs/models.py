@@ -54,6 +54,7 @@ class Article(models.Model):
         max_length=20,
         choices=TopicChoices.choices,
         null=True,
+        blank=True,
         verbose_name="토픽"
     )
     title = models.CharField(max_length=50, verbose_name="제목")
