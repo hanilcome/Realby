@@ -32,7 +32,7 @@ class Category(models.Model):
 
 
 class Article(models.Model):
-    
+
     class TopicChoices(models.TextChoices):
         LIFE = "LIFE", "일상"
         TRAVEL = "TRAVEL", "여행, 맛집"
@@ -61,11 +61,17 @@ class Article(models.Model):
     content = models.TextField(verbose_name="내용")
     image = models.ImageField("이미지", upload_to="%Y/%m/", blank=True)
     hits = models.PositiveIntegerField(default=0, verbose_name="조회수")
+    empathys = models.PositiveIntegerField(default=0, verbose_name="공감수")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="수정일")
 
     def __str__(self):
         return self.title
+
+
+class ArticleEmpathys(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="empathy_user")
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="empathy_article")
 
 
 class ArticleHits(models.Model):

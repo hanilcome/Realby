@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 import threading
 from rest_framework.pagination import PageNumberPagination
-from .pagination import PaginationMixin
+from .pagination import PaginationManage
 
 
 class ArticlePagination(PageNumberPagination):
@@ -149,7 +149,7 @@ class CategoryView(APIView):
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
 
-class ArticleView(APIView, PaginationMixin):
+class ArticleView(APIView, PaginationManage):
     pagination_class = ArticlePagination
     
     def get(self, request, blog_name):
@@ -250,6 +250,35 @@ class ArticleDetailView(APIView):
         else:
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
+
+class ArticleEmpathyView(APIView):
+    
+    def post(self, request, article_id):
+        """게시글 공감 기능"""
+        
+        article = get_object_or_404(Article, id=article_id)
+        serializer = ArticleEmpathySerializer(data=request.data)
+        article_empathy = ArticleEmpathys.objects.filter(article_id=article_id)
+        print(article_empathy)
+        
+        a = 0
+        for n in range(len(article_empathy)):
+            if request.user.id == article_empathy.values()[n]['user_id']:
+                a += 1
+        
+        if bool(article_empathy) is False or a == 0:
+            if serializer.is_valid():
+                article.empathys += 1
+                article.save()
+                serializer.save(
+                    article_id=article_id, user_id=request.user.id
+                )
+                return Response("공감", status=status.HTTP_200_OK)
+            
+        else:
+            
+            article_empathy.delete()
+            return Response("공감 취소", status=status.HTTP_205_RESET_CONTENT)
 
 class CommentView(APIView):
     """댓글"""

@@ -1,4 +1,4 @@
-class PaginationMixin(object):
+class PaginationManage(object):
     @property
     def paginator(self):
         if not hasattr(self, '_paginator'):
