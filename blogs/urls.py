@@ -43,6 +43,11 @@ urlpatterns = [
         name="articledetailview",
     ),
     path(
+        "<int:article_id>/empathys/",
+        views.ArticleEmpathyView.as_view(),
+        name="article_empathy_view",
+    ),
+    path(
         "<int:article_id>/comments/",
         views.CommentView.as_view(),
         name="commentview",
