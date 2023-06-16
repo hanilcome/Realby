@@ -13,11 +13,6 @@ urlpatterns = [
         name="blogcreateview",
     ),
     path(
-        "list/",
-        views.BlogList.as_view(),
-        name="bloglist",
-    ),
-    path(
         "<str:blog_name>/",
         views.BlogView.as_view(),
         name="blogview",
@@ -28,7 +23,7 @@ urlpatterns = [
         name="categoryview",
     ),
     path(
-        "<str:blog_name>/category/<int:category_id>/",
+        "<str:blog_name>/category/<str:category_name>/",
         views.CategoryView.as_view(),
         name="categoryview",
     ),

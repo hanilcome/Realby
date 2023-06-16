@@ -8,6 +8,12 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 import threading
+from rest_framework.pagination import PageNumberPagination
+from .pagination import PaginationMixin
+
+
+class ArticlePagination(PageNumberPagination):
+    page_size = 4
 
 
 class MainView(APIView):
@@ -131,11 +137,11 @@ class CategoryView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_204_NO_CONTENT)
 
-    def delete(self, request, blog_name, category_id):
+    def delete(self, request, blog_name, category_name):
         """카테고리 삭제"""
 
         blog = get_object_or_404(Blog, blog_name=blog_name)
-        category = get_object_or_404(Category, id=category_id)
+        category = get_object_or_404(Category, category=category_name)
         if request.user.id == blog.user_id:
             category.delete()
             return Response("삭제완료", status=status.HTTP_204_NO_CONTENT)
@@ -143,15 +149,21 @@ class CategoryView(APIView):
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
 
-class ArticleView(APIView):
+class ArticleView(APIView, PaginationMixin):
+    pagination_class = ArticlePagination
+    
     def get(self, request, blog_name):
         """블로그 전체게시글"""
-
         blog = Blog.objects.filter(blog_name=blog_name)
-        articles = Article.objects.filter(blog_id=blog[0].id).order_by("-hits")
-        serializer = ArticleSerializer(articles, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        articles = Article.objects.filter(blog_id=blog[0].id).order_by("-created_at")
+        page = self.paginate_queryset(articles)
 
+        if page is not None:
+            serializer = self.get_paginated_response(ArticleSerializer(page, many=True).data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+
+        
     def post(self, request, blog_name):
         """게시글 작성"""
 
