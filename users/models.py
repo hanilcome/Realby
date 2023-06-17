@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import date
 
+
 class UserManager(BaseUserManager):
     def create_user(self, email, username, password=None):
         if not email:

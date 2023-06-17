@@ -55,15 +55,37 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "rest_framework.authtoken",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "rest_framework",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.kakao",
+    "allauth.socialaccount.providers.naver",
+    "allauth.socialaccount.providers.github",
     "corsheaders",
     "users",
     "blogs",
     "backoffice",
 ]
 
+SITE_ID = 1
+AUTH_USER_MODEL = "users.User"
+
+# 유저 모델과 통일
+ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+
 REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
@@ -110,6 +132,18 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# DATABASES = get_secret("DATABASES")
+
+# "DATABASES" : {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "db_name",
+#         "USER": "db_user",
+#         "PASSWORD": "db_password",
+#         "HOST": "localhost",
+#         "PORT" : "3306",
+#      }}
 
 
 # Password validation
