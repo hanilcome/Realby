@@ -60,9 +60,6 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = "__all__"
 
-    def get_article_likes_count(self, obj):
-        article_likes = Like.objects.filter(article=obj).count()
-        return article_likes
 
 
 class ArticleCreateSerializer(serializers.ModelSerializer):
@@ -70,7 +67,7 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
     """Article create serializer"""
     class Meta:
         model = Article
-        fields = ("title", "content", "category", "topic")
+        fields = ("title", "content", "category", "topic", "image")
 
 
 class ReCommentSerializer(serializers.ModelSerializer):
@@ -142,3 +139,9 @@ class BlogSubscribeSerializer(serializers.ModelSerializer):
             "subscribes"
         )
 
+
+class SearchSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Article  
+        fields = "__all__"
