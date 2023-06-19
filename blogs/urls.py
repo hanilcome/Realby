@@ -8,6 +8,11 @@ urlpatterns = [
         name="mainview",
     ),
     path(
+        "<str:blog_name>/search/",
+        views.SearchView.as_view(),
+        name="article_search_view",   
+    ),
+    path(
         "blogcreate/",
         views.BlogCreateView.as_view(),
         name="blogcreateview",

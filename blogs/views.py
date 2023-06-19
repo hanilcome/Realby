@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.db.models import Q
 from blogs.models import *
 from blogs.serializers import *
 from users.models import User
@@ -10,6 +10,7 @@ from rest_framework.generics import get_object_or_404
 import threading
 from rest_framework.pagination import PageNumberPagination
 from .pagination import PaginationManage
+
 
 
 class ArticlePagination(PageNumberPagination):
@@ -93,16 +94,14 @@ class SubscribeView(APIView):
 
         blog = get_object_or_404(Blog, blog_name=blog_name)
         me = request.user.id
-        if me != blog.user_id:
-            try:
-                if me != blog.my_subscribers.filter(user_id=me)[0].user_id:
-                    blog.my_subscribers.add(me)
-                    return Response("구독", status=status.HTTP_200_OK)
-                else:
-                    blog.my_subscribers.remove(me)
-                    return Response("구독 취소", status=status.HTTP_204_NO_CONTENT)
-            except IndexError:
-                blog.my_subscribers.add(me)
+        subscribes = Blog.objects.filter(user_id=me)[0]
+        
+        if subscribes != blog:
+            if subscribes in blog.my_subscribers.all():
+                blog.my_subscribers.remove(subscribes)
+                return Response("구독 취소", status=status.HTTP_204_NO_CONTENT)
+            else:
+                blog.my_subscribers.add(subscribes)
                 return Response("구독", status=status.HTTP_200_OK)
         else:
             return Response("자기 자신은 구독 할 수 없습니다!", status=status.HTTP_205_RESET_CONTENT)
@@ -149,9 +148,12 @@ class ArticleView(APIView, PaginationManage):
         blog = Blog.objects.filter(blog_name=blog_name)
         articles = Article.objects.filter(blog_id=blog[0].id).order_by("-created_at")
         page = self.paginate_queryset(articles)
-
+        
         if page is not None:
             serializer = self.get_paginated_response(ArticleSerializer(page, many=True).data)
+        else:
+            serializer = ArticleSerializer(articles, many=True)
+        
         return Response(serializer.data, status=status.HTTP_200_OK)
         
 
@@ -193,6 +195,7 @@ class ArticleDetailView(APIView):
         articlehit = ArticleHits.objects.filter(article_id=article_id).values()
         serializer = ArticleHitSerializer(data=request.data)
 
+        
         a = 0
         for n in range(len(articlehit)):
             if hit == articlehit[n]["client_ip"]:
@@ -275,7 +278,7 @@ class ArticleEmpathyView(APIView):
 
 class CommentView(APIView):
     """댓글"""
-
+    
     def get(self, request, article_id):
         """댓글 불러오기"""
 
@@ -337,3 +340,25 @@ class ReCommentView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class SearchView(APIView):
+    
+    def get(self, request, blog_name):
+        """게시글 검색 기능"""
+        blog = Blog.objects.filter(blog_name=blog_name)
+        articles = Article.objects.filter(blog_id=blog[0].id).order_by("-created_at")
+        search_word = request.GET.get('search-word','') # 주소창에 ?search-word='' 형식으로 받아온다.
+        print(len(search_word))
+        
+        if search_word:
+            articles = articles.filter(
+                Q(title__icontains=search_word) |
+                Q(content__icontains=search_word)
+            )
+            
+        serializer = SearchSerializer(articles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    
