@@ -167,6 +167,8 @@ class ArticleView(APIView, PaginationManage):
             serializer.save(user=request.user, blog_id=blog[0].id)
             return Response({"message": "게시글 작성 완료"}, status=status.HTTP_201_CREATED)
         else:
+            print(serializer.error_messages)
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
