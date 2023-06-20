@@ -46,6 +46,7 @@ class Article(models.Model):
         Category,
         on_delete=models.CASCADE,
         blank=True,
+        null=True,
         verbose_name="카테고리",
     )
     topic = models.CharField(

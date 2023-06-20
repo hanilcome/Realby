@@ -15,7 +15,7 @@ from .pagination import PaginationManage
 class ArticlePagination(PageNumberPagination):
     """페이지네이션 페이지 수"""
 
-    page_size = 4
+    page_size = 100
 
 
 class MainView(APIView):
