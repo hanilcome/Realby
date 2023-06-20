@@ -63,9 +63,9 @@ urlpatterns = [
         name="commentdetailview",
     ),
     path(
-        "<int:article_id>/comments/<int:comment_id>/",
+        "recomments/<int:recomment_id>/",
         views.ReCommentView.as_view(),
-        name="commentview",
+        name="ReCommentView",
     ),
     path(
         "subscribe/<str:blog_name>/",
