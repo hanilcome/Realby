@@ -14,6 +14,12 @@ django-cors-headers = "^3.14.0"
 pillow = "^9.5.0"
 django-nextjs = "^2.2.2"
 djangorestframework-simplejwt = "^5.2.2"
+django-allauth = "^0.54.0"
+mysqlclient = "^2.1.1"
+dj-rest-auth = "^4.0.1"
+django-postgresql = "^0.0.3"
+psycopg2 = "^2.9.6"
+django-dotenv = "^1.4.2"
 
 [build-system]
 requires = ["poetry-core"]
