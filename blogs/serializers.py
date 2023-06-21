@@ -23,6 +23,12 @@ class BlogCreateSerializer(serializers.ModelSerializer):
     #     return subscription_count
 
 
+class ReCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReComment
+        fields = ("id", "user", "recomment", "created_at")
+
+
 class CategorySerializer(serializers.ModelSerializer):
     """Category serializer"""
 
@@ -42,63 +48,53 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     blog = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
-    
-    
+
     def get_blog(self, obj):
         return obj.blog.blog_name
-    
-    
+
     def get_category(self, obj):
         if obj.category:
             return obj.category.category
         else:
             pass
-        
-    
+
     """Article serializer"""
+
     class Meta:
         model = Article
         fields = "__all__"
 
 
-
 class ArticleCreateSerializer(serializers.ModelSerializer):
-        
+
     """Article create serializer"""
+
     class Meta:
         model = Article
         fields = ("title", "content", "category", "topic", "image")
 
 
-class ReCommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ReComment
-        fields = ("id","user","recomment","created_at")
-
-
 class CommentSerializer(serializers.ModelSerializer):
     recomments = ReCommentSerializer(many=True)
 
-    
     """Comment Serializer"""
 
     class Meta:
         model = Comment
-        fields = ("id","user", "comment", "created_at", "article", "recomments")
+        fields = ("id", "user", "comment", "created_at", "article", "recomments")
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ("comment",)
-        
+
 
 class CommentDetailSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Comment
         fields = ("comment",)
-        
+
 
 class ReCommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -107,7 +103,6 @@ class ReCommentCreateSerializer(serializers.ModelSerializer):
 
 
 class ArticleEmpathySerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = ArticleEmpathys
         fields = ""
@@ -115,16 +110,17 @@ class ArticleEmpathySerializer(serializers.ModelSerializer):
 
 class ArticleHitSerializer(serializers.ModelSerializer):
     def get_client_ip(request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
         if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
+            ip = x_forwarded_for.split(",")[0]
         else:
-            ip = request.META.get('REMOTE_ADDR')
+            ip = request.META.get("REMOTE_ADDR")
         return ip
-    
+
     class Meta:
         model = ArticleHits
         fields = ""
+
 
 class BlogSubscribeSerializer(serializers.ModelSerializer):
     subscribes = serializers.StringRelatedField(many=True)
@@ -132,16 +128,10 @@ class BlogSubscribeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = (
-            "id",
-            "blog_name",
-            "my_subscribers",
-            "subscribes"
-        )
+        fields = ("id", "blog_name", "my_subscribers", "subscribes")
 
 
 class SearchSerializer(serializers.ModelSerializer):
-    
     class Meta:
-        model = Article  
+        model = Article
         fields = "__all__"

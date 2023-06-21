@@ -10,7 +10,7 @@ urlpatterns = [
     path(
         "<str:blog_name>/search/",
         views.SearchView.as_view(),
-        name="article_search_view",   
+        name="article_search_view",
     ),
     path(
         "blogcreate/",
@@ -59,13 +59,13 @@ urlpatterns = [
     ),
     path(
         "comments/<int:comment_id>/",
-        views.CommentView.as_view(),
-        name="commentview",
+        views.CommentDetailView.as_view(),
+        name="commentdetailview",
     ),
     path(
-        "<int:article_id>/comments/<int:comment_id>/",
+        "recomments/<int:recomment_id>/",
         views.ReCommentView.as_view(),
-        name="commentview",
+        name="ReCommentView",
     ),
     path(
         "subscribe/<str:blog_name>/",
