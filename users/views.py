@@ -78,7 +78,7 @@ GITHUB_CALLBACK_URI = BASE_URL + "github/callback/"
 
 
 class GoogleLogin(SocialLoginView):
-    """구글 소셜 로그인"""
+    """구글 로그인"""
 
     adapter_class = GoogleOAuth2Adapter
     callback_url = GOOGLE_CALLBACK_URI
@@ -86,7 +86,7 @@ class GoogleLogin(SocialLoginView):
 
 
 class KakaoLogin(SocialLoginView):
-    """카카오 소셜 로그인"""
+    """카카오 로그인"""
 
     adapter_class = KakaoOAuth2Adapter
     callbakc_url = KAKAO_CALLBACK_URI
@@ -104,6 +104,7 @@ class KakaoLogin(SocialLoginView):
 
     """
     (인가 코드로) 토큰 발급 요청
+    Access token, Refresh token
     """
 
     def kakao_callback(request):
@@ -144,7 +145,7 @@ class KakaoLogin(SocialLoginView):
 
 
 class NaverLogin(SocialLoginView):
-    """네이버 소셜 로그인"""
+    """네이버 로그인"""
 
     adapter_class = NaverOAuth2Adapter
     callback_url = NAVER_CALLBACK_URI
@@ -152,7 +153,7 @@ class NaverLogin(SocialLoginView):
 
 
 class GithubLogin(SocialLoginView):
-    """깃허브 소셜 로그인"""
+    """깃허브 로그인"""
 
     adapter_class = GitHubOAuth2Adapter
     callback_url = GITHUB_CALLBACK_URI
