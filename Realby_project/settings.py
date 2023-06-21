@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-import os, json
+import os
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -20,52 +20,40 @@ from django.core.exceptions import ImproperlyConfigured
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-secret_file = os.path.join(BASE_DIR, "secrets.json")
-
-with open(secret_file) as f:
-    secrets = json.loads(f.read())
-
-
-def get_secret(setting, secrets=secrets):
-    try:
-        return secrets[setting]
-    except KeyError:
-        error_msg = "Set the {} environment variable".format(setting)
-        raise ImproperlyConfigured(error_msg)
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_secret("SECRET_KEY")
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
+# 환경변수에 따라 DEBUG모드 여부를 결정합니다.
+DEBUG = os.environ.get("DEBUG", "0") == "1"
 
-ALLOWED_HOSTS = ["backend"]
+# 접속을 허용할 host를 설정합니다.
+ALLOWED_HOSTS = [
+    "*",
+]
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# postgres 환경변수가 존재 할 경우에 postgres db에 연결을 시도합니다.
+POSTGRES_DB = os.environ.get("POSTGRES_DB", "")
+if POSTGRES_DB:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": POSTGRES_DB,
+            "USER": os.environ.get("POSTGRES_USER", ""),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
+            "HOST": os.environ.get("POSTGRES_HOST", ""),
+            "PORT": os.environ.get("POSTGRES_PORT", ""),
+        }
     }
-}
 
-# DATABASES = get_secret("DATABASES")
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": "realby_db",
-#         "USER": "finalsurvivors",
-#         "PASSWORD": "Fldjf!@qkdl#$2582",
-#         "HOST": "54.180.120.169",
-#         "PORT" : "5432"
-#         }}
+# 환경변수가 존재하지 않을 경우 sqlite3을 사용합니다.
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
@@ -200,7 +188,7 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": get_secret("SECRET_KEY"),
+    "SIGNING_KEY": os.environ.get("SECRET_KEY"),
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
@@ -230,8 +218,8 @@ SIMPLE_JWT = {
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
@@ -239,4 +227,12 @@ NEXTJS_SETTINGS = {
     "nextjs_server_url": "http://127.0.0.1:3000",
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS 허용 목록에 ec2 ip를 추가합니다.
+CORS_ORIGIN_WHITELIST = ["http://54.180.120.169"]
+# ex) CORS_ORIGIN_WHITELIST = ['http://43.201.72.190']
+
+# CSRF 허용 목록을 CORS와 동일하게 설정합니다.
+CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
+
+# CORS_ALLOW_ALL_ORIGINS = True
