@@ -224,16 +224,34 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-NEXTJS_SETTINGS = {
-    "nextjs_server_url": "http://127.0.0.1:3000",
-}
+NEXTJS_SETTINGS = {"nextjs_server_url": "https://realby-vinylstage.vercel.app/"}
+
+CORS_ALLOWED_WHITELIST = ["http://54.180.120.169"]
+
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_WHITELIST
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 
-# CORS 허용 목록에 ec2 ip를 추가합니다.
-CORS_ORIGIN_WHITELIST = ["http://54.180.120.169"]
-# ex) CORS_ORIGIN_WHITELIST = ['http://43.201.72.190']
 
-# CSRF 허용 목록을 CORS와 동일하게 설정합니다.
-CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
 
-# CORS_ALLOW_ALL_ORIGINS = True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
