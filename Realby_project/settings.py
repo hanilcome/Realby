@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+from django.conf import settings
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -33,7 +34,7 @@ ALLOWED_HOSTS = [
 ]
 
 # postgres 환경변수가 존재 할 경우에 postgres db에 연결을 시도합니다.
-POSTGRES_DB = os.environ.get("POSTGRES_DB", "")
+POSTGRES_DB = os.getenv("POSTGRES_DB", "")
 if POSTGRES_DB:
     DATABASES = {
         "default": {
@@ -188,7 +189,7 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": os.environ.get("SECRET_KEY"),
+    "SIGNING_KEY": settings.SECRET_KEY,
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
