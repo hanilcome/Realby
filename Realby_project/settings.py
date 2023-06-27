@@ -28,10 +28,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # 환경변수에 따라 DEBUG모드 여부를 결정합니다.
 DEBUG = os.environ.get("DEBUG", "0") == "1"
 
-# 접속을 허용할 host를 설정합니다.
-ALLOWED_HOSTS = [
-    "*",
-]
+ALLOWED_HOSTS = ["*"]
 
 # postgres 환경변수가 존재 할 경우에 postgres db에 연결을 시도합니다.
 # POSTGRES_DB = os.getenv("POSTGRES_DB", "")
@@ -64,6 +61,7 @@ DATABASES = {
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -88,7 +86,20 @@ INSTALLED_APPS = [
     "users",
     "blogs",
     "backoffice",
+    "livechat",
 ]
+
+WSGI_APPLICATION = "Realby_project.wsgi.application"
+
+ASGI_APPLICATION = "Realby_project.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 SITE_ID = 1
 AUTH_USER_MODEL = "users.User"
@@ -135,7 +146,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "Realby_project.wsgi.application"
 
 
 AUTH_PASSWORD_VALIDATORS = [

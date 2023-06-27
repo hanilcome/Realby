@@ -28,7 +28,6 @@ class MainView(APIView):
 
 
 class BlogView(APIView):
-    """블로그 전체"""
 
     def get(self, request, blog_name):
         """블로그정보 불러오기"""
@@ -39,8 +38,9 @@ class BlogView(APIView):
 
     def delete(self, request, blog_name):
         """블로그 삭제"""
-
+        
         blog = get_object_or_404(Blog, blog_name=blog_name)
+
         if request.user.id == blog.user_id:
             blog.delete()
             return Response("삭제완료", status=status.HTTP_204_NO_CONTENT)
@@ -49,12 +49,17 @@ class BlogView(APIView):
 
 
 class BlogCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
     def post(self, request):
         """블로그 개설"""
 
         blog = Blog.objects.filter()
         serializer = BlogCreateSerializer(data=request.data)
 
+        if not request.user.is_authenticated:
+            return Response({"message":"로그인 해주세요"}, 401)
+        
         a = 0
         for n in range(len(blog)):
             if blog[n].user_id == request.user.id:
@@ -70,7 +75,7 @@ class BlogCreateView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         else:
-            return Response(serializer.errors, status=status.HTTP_204_NO_CONTENT)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BlogList(APIView):
@@ -108,6 +113,8 @@ class SubscribeView(APIView):
 
 
 class CategoryView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
     def get(self, request, blog_name):
         """블로그 카테고리 목록 불러오기"""
 
@@ -118,7 +125,7 @@ class CategoryView(APIView):
 
     def post(self, request, blog_name):
         """카테고리 생성"""
-
+        
         blog = Blog.objects.filter(blog_name=blog_name)
         serializer = CategoryCreateSerializer(data=request.data)
 
@@ -128,11 +135,11 @@ class CategoryView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_204_NO_CONTENT)
 
-    def delete(self, request, blog_name, category_name):
+    def delete(self, request, blog_name, category_id):
         """카테고리 삭제"""
 
         blog = get_object_or_404(Blog, blog_name=blog_name)
-        category = get_object_or_404(Category, category=category_name)
+        category = get_object_or_404(Category, id=category_id)
         if request.user.id == blog.user_id:
             category.delete()
             return Response("삭제완료", status=status.HTTP_204_NO_CONTENT)
@@ -142,20 +149,20 @@ class CategoryView(APIView):
 
 class ArticleView(APIView, PaginationManage):
     pagination_class = ArticlePagination
-
+    
     def get(self, request, blog_name):
         """블로그 전체게시글"""
         blog = Blog.objects.filter(blog_name=blog_name)
         articles = Article.objects.filter(blog_id=blog[0].id).order_by("-created_at")
-        page = self.paginate_queryset(articles)
+        # page = self.paginate_queryset(articles)
 
-        if page is not None:
-            serializer = self.get_paginated_response(
-                ArticleSerializer(page, many=True).data
-            )
-        else:
-            serializer = ArticleSerializer(articles, many=True)
-
+        # if page is not None:
+        #     serializer = self.get_paginated_response(
+        #         ArticleSerializer(page, many=True).data
+        #     )
+        # else:
+        #     serializer = ArticleSerializer(articles, many=True)
+        serializer =  ArticleSerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, blog_name):
@@ -163,50 +170,46 @@ class ArticleView(APIView, PaginationManage):
 
         blog = Blog.objects.filter(blog_name=blog_name)
         serializer = ArticleCreateSerializer(data=request.data)
+            
+        if not request.user.is_authenticated:
+            return Response({"message":"로그인 해주세요"}, status=status.HTTP_401_UNAUTHORIZED)
+        
         if serializer.is_valid():
             serializer.save(user=request.user, blog_id=blog[0].id)
             return Response({"message": "게시글 작성 완료"}, status=status.HTTP_201_CREATED)
         else:
-            print(serializer.error_messages)
-            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ArticleDetailView(APIView):
+    
     def timer_delete(article_id, hit):
         """일정 시간 지나면 ip 자동 삭제하는 함수"""
 
         articlehit = ArticleHits.objects.filter(article_id=article_id, client_ip=hit)
         articlehit.delete()
 
-    def get(self, request, blog_name, article_id):
+    def get(self, request, article_id):
         """상세게시글 불러오기"""
 
-        blog = Blog.objects.filter(blog_name=blog_name)
-        article = get_object_or_404(Article, blog_id=blog[0].id, id=article_id)
+        article = get_object_or_404(Article, id=article_id)
         serializer = ArticleSerializer(article)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, blog_name, article_id):
+    def post(self, request, article_id):
         """조회수 기능(ip기반)"""
 
-        blog = Blog.objects.filter(blog_name=blog_name)
-        article = get_object_or_404(Article, blog_id=blog[0].id, id=article_id)
+        article = get_object_or_404(Article, id=article_id)
         hit = ArticleHitSerializer.get_client_ip(request)
         articlehit = ArticleHits.objects.filter(article_id=article_id).values()
         serializer = ArticleHitSerializer(data=request.data)
-
-        a = 0
-        for n in range(len(articlehit)):
-            if hit == articlehit[n]["client_ip"]:
-                a += 1
-
-        if bool(articlehit) is False or a == 0:
+        
+        if bool(articlehit) is False and request.user.is_authenticated:
             if serializer.is_valid():
                 article.hits += 1
                 article.save()
                 serializer.save(
-                    client_ip=hit, article_id=article_id, blog_id=blog[0].id
+                    client_ip=hit, article_id=article_id
                 )
                 threading.Timer(
                     20, ArticleDetailView.timer_delete, args=(article_id, hit)
@@ -215,12 +218,11 @@ class ArticleDetailView(APIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            return Response("동일한 ip주소가 존재합니다.", status=status.HTTP_205_RESET_CONTENT)
+            return Response("동일한 ip주소가 존재하거나 로그인이 안되어 있습니다.", status=status.HTTP_205_RESET_CONTENT)
 
-    def put(self, request, blog_name, article_id):
+    def put(self, request, article_id):
         """게시글 수정"""
-        blog = Blog.objects.filter(blog_name=blog_name)
-        article = get_object_or_404(Article, blog_id=blog[0].id, id=article_id)
+        article = get_object_or_404(Article, id=article_id)
         if request.user == article.user:
             serializer = ArticleCreateSerializer(
                 article,
@@ -234,11 +236,10 @@ class ArticleDetailView(APIView):
         else:
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
-    def delete(self, request, blog_name, article_id):
+    def delete(self, request, article_id):
         """게시글 삭제"""
 
-        blog = Blog.objects.filter(blog_name=blog_name)
-        article = get_object_or_404(Article, blog_id=blog[0].id, id=article_id)
+        article = get_object_or_404(Article, id=article_id)
         if request.user == article.user:
             article.delete()
             return Response("삭제완료", status=status.HTTP_204_NO_CONTENT)
@@ -247,25 +248,22 @@ class ArticleDetailView(APIView):
 
 
 class ArticleEmpathyView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
     def post(self, request, article_id):
         """게시글 공감 기능"""
 
         article = get_object_or_404(Article, id=article_id)
         serializer = ArticleEmpathySerializer(data=request.data)
         article_empathy = ArticleEmpathys.objects.filter(article_id=article_id)
-
-        a = 0
-        for n in range(len(article_empathy)):
-            if request.user.id == article_empathy.values()[n]["user_id"]:
-                a += 1
-
-        if bool(article_empathy) is False or a == 0:
+        
+        
+        if bool(article_empathy) is False :
             if serializer.is_valid():
                 article.empathys += 1
                 article.save()
                 serializer.save(article_id=article_id, user_id=request.user.id)
                 return Response("공감", status=status.HTTP_200_OK)
-
         else:
             article.empathys -= 1
             article.save()
@@ -288,6 +286,10 @@ class CommentView(APIView):
         """댓글 작성"""
 
         serializer = CommentCreateSerializer(data=request.data)
+        
+        if not request.user.is_authenticated:
+            return Response("로그인이 필요합니다.", status=status.HTTP_401_UNAUTHORIZED)
+        
         if serializer.is_valid():
             serializer.save(
                 user=request.user, article=Article.objects.get(pk=article_id)
@@ -390,7 +392,7 @@ class SearchView(APIView):
         if search_word:
             articles = articles.filter(
                 Q(title__icontains=search_word) | Q(content__icontains=search_word)
-            )
+            ).distinct()
 
         serializer = SearchSerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
