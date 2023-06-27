@@ -48,9 +48,13 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     blog = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
 
     def get_blog(self, obj):
         return obj.blog.blog_name
+
+    def get_user(self, obj):
+        return obj.user.username
 
     def get_category(self, obj):
         if obj.category:
