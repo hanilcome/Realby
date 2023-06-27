@@ -31,27 +31,27 @@ DEBUG = os.environ.get("DEBUG", "0") == "1"
 ALLOWED_HOSTS = ["*"]
 
 # postgres 환경변수가 존재 할 경우에 postgres db에 연결을 시도합니다.
-POSTGRES_DB = os.getenv("POSTGRES_DB", "")
-if POSTGRES_DB:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": POSTGRES_DB,
-            "USER": os.environ.get("POSTGRES_USER", ""),
-            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
-            "HOST": os.environ.get("POSTGRES_HOST", ""),
-            "PORT": os.environ.get("POSTGRES_PORT", ""),
-        }
-    }
+# POSTGRES_DB = os.getenv("POSTGRES_DB", "")
+# if POSTGRES_DB:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.postgresql",
+#             "NAME": POSTGRES_DB,
+#             "USER": os.environ.get("POSTGRES_USER", ""),
+#             "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
+#             "HOST": os.environ.get("POSTGRES_HOST", ""),
+#             "PORT": os.environ.get("POSTGRES_PORT", ""),
+#         }
+#     }
 
-# 환경변수가 존재하지 않을 경우 sqlite3을 사용합니다.
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
+# # 환경변수가 존재하지 않을 경우 sqlite3을 사용합니다.
+# else:
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
+}
 
 
 # Password validation
@@ -196,7 +196,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=720),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
+    "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": settings.SECRET_KEY,
@@ -241,27 +241,3 @@ CORS_ALLOWED_WHITELIST = ["http://54.180.120.169"]
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_WHITELIST
 
 CORS_ALLOW_ALL_ORIGINS = True
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
