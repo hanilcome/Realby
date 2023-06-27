@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.db.models.query_utils import Q
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from .tokens import user_verify_token
 from .models import User
 from users.serializers import (
@@ -67,6 +68,7 @@ class LoginView(TokenObtainPairView):
     """로그인 정보 전송 및 처리 요청"""
 
     serializer_class = LoginViewSerializer
+
 
 
 # 소셜 로그인
@@ -158,6 +160,18 @@ class GithubLogin(SocialLoginView):
     adapter_class = GitHubOAuth2Adapter
     callback_url = GITHUB_CALLBACK_URI
     client_class = OAuth2Client
+
+
+class LogoutView(TokenRefreshView):
+    """로그아웃 요청 처리 및 토큰 무효화"""
+
+    def post(self, request):
+        # Refresh 토큰 무효화
+        token = RefreshToken(request.data.get("token"))  # 전달받은 토큰
+        token.blacklist()  # 블랙리스트에 추가
+
+        # 로그아웃 응답
+        return Response(status=status.HTTP_200_OK)
 
 
 class MyProfileView(APIView):

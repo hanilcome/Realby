@@ -7,6 +7,7 @@ from django.utils.encoding import force_bytes
 import random, string
 from .models import User
 from .tokens import user_verify_token
+from django.http import HttpResponse
 
 
 # 랜덤 영문숫자 6글자의 비밀번호를 return하는 함수
@@ -18,6 +19,7 @@ def reset_password():
 class LoginViewSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
+        # refresh token, access token 생성
         token = super().get_token(user)
 
         # Add custom claims
@@ -25,6 +27,29 @@ class LoginViewSerializer(TokenObtainPairSerializer):
         token["email"] = user.email
 
         return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        # Refresh Token을 HTTP-only 쿠키에 저장
+        refresh_token = data["refresh"]
+        self.set_cookie("refresh_token", refresh_token)
+
+        # Access Token을 헤더에 담아 전달
+        access_token = data["access"]
+        self.set_header("Authorization", f"Bearer {access_token}")
+
+        return data
+
+    def set_cookie(self, key, value):
+        response = HttpResponse()
+        response.set_cookie(key, value, httponly=True)
+        self._response = response
+
+    def set_header(self, key, value):
+        response = HttpResponse()
+        response[key] = value
+        self._response = response
 
 
 class UserSerializer(serializers.ModelSerializer):
