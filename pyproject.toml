@@ -20,6 +20,13 @@ dj-rest-auth = "^4.0.1"
 django-postgresql = "^0.0.3"
 psycopg2 = "^2.9.6"
 django-dotenv = "^1.4.2"
+channels = {extras = ["daphne"], version = "^4.0.0"}
+websocket-client = "^1.6.0"
+channels-redis = "^4.1.0"
+redis = "^4.5.5"
+
+
+
 
 [build-system]
 requires = ["poetry-core"]

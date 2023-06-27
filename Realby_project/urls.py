@@ -25,6 +25,7 @@ urlpatterns = [
     path("users/", include("users.urls")),
     path("blogs/", include("blogs.urls")),
     path("backoffice/", include("backoffice.urls")),
+    path("livechat/", include("livechat.urls")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -82,7 +82,7 @@ class ArticleHits(models.Model):
     )
     date = models.DateField(auto_now_add=True, verbose_name="조회 날짜")
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
-    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    # blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.article.id)

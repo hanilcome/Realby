@@ -43,7 +43,7 @@ SECRET_KEY = get_secret("SECRET_KEY")
 DEBUG = True
 
 
-ALLOWED_HOSTS = ["backend"]
+ALLOWED_HOSTS = ["*"]
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -75,6 +75,7 @@ DATABASES = {
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -99,7 +100,20 @@ INSTALLED_APPS = [
     "users",
     "blogs",
     "backoffice",
+    "livechat",
 ]
+
+WSGI_APPLICATION = "Realby_project.wsgi.application"
+
+ASGI_APPLICATION = "Realby_project.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 SITE_ID = 1
 AUTH_USER_MODEL = "users.User"
@@ -146,7 +160,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "Realby_project.wsgi.application"
 
 
 AUTH_PASSWORD_VALIDATORS = [
