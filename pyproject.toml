@@ -24,6 +24,7 @@ channels = {extras = ["daphne"], version = "^4.0.0"}
 websocket-client = "^1.6.0"
 channels-redis = "^4.1.0"
 redis = "^4.5.5"
+django-ckeditor = "^6.6.1"
 
 
 
