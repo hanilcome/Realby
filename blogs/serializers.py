@@ -75,7 +75,7 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ("title", "content", "category", "topic", "image")
+        fields = ("title", "content", "category", "topic")
 
 
 class CommentSerializer(serializers.ModelSerializer):
