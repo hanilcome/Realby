@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import User
+from ckeditor.fields import RichTextField
 
 
 class Blog(models.Model):
@@ -55,9 +56,8 @@ class Article(models.Model):
         blank=True,
         verbose_name="토픽",
     )
-    title = models.CharField(max_length=50, verbose_name="제목")
-    content = models.TextField(verbose_name="내용")
-    image = models.ImageField("이미지", upload_to="%Y/%m/", blank=True)
+    title = models.CharField(max_length=50, verbose_name="제목")  # 제목은그대로 두고
+    content = RichTextField(verbose_name="내용")  # 내용에서 웹에디터 사용으로 필드가 변경됨(이미지와 텍스트필드 삭제)
     hits = models.PositiveIntegerField(default=0, verbose_name="조회수")
     empathys = models.PositiveIntegerField(default=0, verbose_name="공감수")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="작성일")

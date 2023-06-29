@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "blogs",
     "backoffice",
     "livechat",
+    "ckeditor",
 ]
 
 WSGI_APPLICATION = "Realby_project.wsgi.application"
@@ -145,7 +146,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 
 AUTH_PASSWORD_VALIDATORS = [
