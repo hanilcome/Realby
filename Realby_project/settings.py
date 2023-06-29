@@ -61,7 +61,7 @@ DATABASES = {
 # Application definition
 
 INSTALLED_APPS = [
-    "daphne",
+    # "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -91,15 +91,15 @@ INSTALLED_APPS = [
 
 WSGI_APPLICATION = "Realby_project.wsgi.application"
 
-ASGI_APPLICATION = "Realby_project.asgi.application"
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
+# ASGI_APPLICATION = "Realby_project.asgi.application"
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("127.0.0.1", 6379)],
+#         },
+#     },
+# }
 
 SITE_ID = 1
 AUTH_USER_MODEL = "users.User"
