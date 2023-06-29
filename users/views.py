@@ -166,8 +166,8 @@ class LogoutView(TokenRefreshView):
     """로그아웃 요청 처리 및 토큰 무효화"""
 
     def post(self, request):
-        # Refresh 토큰 무효화
-        token = RefreshToken(request.data.get("token"))  # 전달받은 토큰
+        # refresh 토큰 무효화
+        token = RefreshToken(request.data.get("refresh_token"))
         token.blacklist()  # 블랙리스트에 추가
 
         # 로그아웃 응답

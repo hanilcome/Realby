@@ -33,7 +33,7 @@ class LoginViewSerializer(TokenObtainPairSerializer):
 
         # Refresh Token을 HTTP-only 쿠키에 저장
         refresh_token = data["refresh"]
-        self.set_cookie("refresh_token", refresh_token)
+        self.set_cookie("refresh_token", refresh_token)  # ("쿠키 키값", 쿠키값) 
 
         # Access Token을 헤더에 담아 전달
         access_token = data["access"]
