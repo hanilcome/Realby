@@ -25,6 +25,11 @@ websocket-client = "^1.6.0"
 channels-redis = "^4.1.0"
 redis = "^4.5.5"
 django-ckeditor = "^6.6.1"
+pytest = "^7.4.0"
+pytest-django = "^4.5.2"
+coverage = "^7.2.7"
+pytest-cov = "^4.1.0"
+pytest-factoryboy = "^2.5.1"
 
 
 
