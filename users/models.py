@@ -33,6 +33,13 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+    class UserTypeChoices(models.TextChoices):
+        KAKAO = ("kakao","카카오",)
+        GITHUB = ("github","깃허브",)
+        GOOGLE = ("google","구글",)
+        NAVER = ("naver","네이버",)
+        NORMAL = ("normal","일반",)
+        
     email = models.EmailField("이메일", max_length=255, unique=True)
     username = models.CharField("닉네임", max_length=50, unique=True)
     birthdate = models.DateField(
@@ -46,6 +53,7 @@ class User(AbstractBaseUser):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+    user_type = models.CharField(max_length=15,choices=UserTypeChoices.choices,default="NORMAL",)
 
     objects = UserManager()
 
