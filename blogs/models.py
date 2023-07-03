@@ -9,7 +9,7 @@ class Blog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="블로거")
     blog_name = models.CharField(max_length=30, unique=True)
     blog_intro = models.TextField(blank=True, null=True)
-    blog_hits = models.PositiveIntegerField(default=0, verbose_name="방문자수")
+    hits = models.PositiveIntegerField(default=0, verbose_name="방문자수")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="개설일")
     subscribes = models.ManyToManyField(
         "self", symmetrical=False, related_name="my_subscribers", blank=True
@@ -18,6 +18,16 @@ class Blog(models.Model):
     def __str__(self):
         return self.blog_name
 
+
+class BlogHits(models.Model):
+    client_ip = models.GenericIPAddressField(
+        protocol="both", unpack_ipv4=True, null=True, verbose_name="사용자 IP주소"
+    )
+    date = models.DateField(auto_now_add=True, verbose_name="조회 날짜")
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.blog.id)
 
 class Category(models.Model):
     """유저가 직접 지정하는 카테고리"""
@@ -82,7 +92,7 @@ class ArticleHits(models.Model):
     )
     date = models.DateField(auto_now_add=True, verbose_name="조회 날짜")
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
-    # blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+
 
     def __str__(self):
         return str(self.article.id)

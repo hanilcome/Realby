@@ -19,7 +19,7 @@ class BlogRoom(models.Model):
     
 class UserMessage(models.Model):
     user_room1 = models.ForeignKey(User, related_name='user_room_me', on_delete=models.CASCADE)
-    user_room2 = models.ForeignKey(User, related_name='user_room_you', on_delete=models.CASCADE)
+    user_room2 = models.ForeignKey(User, related_name='user_room_youme', on_delete=models.CASCADE)
     chat = models.TextField(verbose_name="내용")
     created_at = models.DateTimeField(auto_now_add=True)
     
