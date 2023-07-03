@@ -1,39 +1,49 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-from .models import BlogMessage, User
+from .models import BlogMessage, UserMessage, User
 
 class LiveChatConsumer(WebsocketConsumer):
     
-    
-    # def fetch_messages(self, data):
+    def fetch_messages(self, data):
         
-    #     messages = BlogMessage.last_30_messages(self)
+        messages = UserMessage.last_30_messages(self)
         
-    #     chat = {
-    #         'command': 'messages',
-    #         'messages': self.messages_to_json(messages)
-    #     }
-    #     return self.send_message(chat)
+        chat = {
+            'command': 'messages',
+            'messages': self.messages_to_json(messages)
+        }
+        return self.send_message(chat)
         
-    def new_message(self, data):
+    def blog_new_message(self, data):
         blog_room_id = int(self.room_name)
         username = data['username']
         user = User.objects.filter(username=username)[0].id
         
         message = BlogMessage.objects.create(user_id=user, chat=data['message'], blog_room_id=blog_room_id)
         chat = {
-            'command': 'new_message',
+            'command': 'blog_new_message',
             'message': self.message_to_json(message)
         }
-        print(username, user, chat)
         return self.send_chat_message(chat)
     
-    # def messages_to_json(self, messages):
-    #     result = []
-    #     for message in messages:
-    #         result.append(self.message_to_json(message))
-    #     return result
+    def user_new_message(self, data):
+        blog_room_id = int(self.room_name)
+        username = data['username']
+        user = User.objects.filter(username=username)[0].id
+        
+        message = UserMessage.objects.create(user_id=user, chat=data['message'], blog_room_id=blog_room_id)
+        chat = {
+            'command': 'user_new_message',
+            'message': self.message_to_json(message)
+        }
+        return self.send_chat_message(chat)
+    
+    def messages_to_json(self, messages):
+        result = []
+        for message in messages:
+            result.append(self.message_to_json(message))
+        return result
     
     def message_to_json(self, message):
         return {
@@ -43,8 +53,9 @@ class LiveChatConsumer(WebsocketConsumer):
         }
     
     commands = {
-        # 'fetch_messages' : fetch_messages,
-        'new_message' : new_message
+        'fetch_messages' : fetch_messages,
+        'blog_new_message' : blog_new_message,
+        'user_new_message' : user_new_message
     }
     
     def connect(self):

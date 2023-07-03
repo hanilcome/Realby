@@ -11,6 +11,20 @@ class BlogSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class BlogHitSerializer(serializers.ModelSerializer):
+    def get_client_ip(request):
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(",")[0]
+        else:
+            ip = request.META.get("REMOTE_ADDR")
+        return ip
+
+    class Meta:
+        model = BlogHits
+        fields = ""
+
+
 class BlogCreateSerializer(serializers.ModelSerializer):
     """Blog create serializer"""
 
@@ -24,6 +38,11 @@ class BlogCreateSerializer(serializers.ModelSerializer):
 
 
 class ReCommentSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    
+    def get_user(self, obj):
+        user = User.objects.get(id=obj.user.id)
+        return user.username
     class Meta:
         model = ReComment
         fields = ("id", "user", "recomment", "created_at")
@@ -80,7 +99,12 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     recomments = ReCommentSerializer(many=True)
-
+    user = serializers.SerializerMethodField()
+    
+    def get_user(self, obj):
+        user = User.objects.get(id=obj.user.id)
+        return user.username
+    
     """Comment Serializer"""
 
     class Meta:

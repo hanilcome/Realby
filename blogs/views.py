@@ -28,13 +28,14 @@ class MainView(APIView):
 
 
 class BlogView(APIView):
+        
     def get(self, request, blog_name):
         """블로그정보 불러오기"""
 
         blog = get_object_or_404(Blog, blog_name=blog_name)
         serializer = BlogSerializer(blog)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
+    
     def delete(self, request, blog_name):
         """블로그 삭제"""
 
@@ -78,13 +79,42 @@ class BlogCreateView(APIView):
 
 
 class BlogList(APIView):
+    def timer_delete(user_id, hit):
+        """일정 시간 지나면 ip 자동 삭제하는 함수"""
+
+        bloghit = BlogHits.objects.filter(blog_id=user_id, client_ip=hit)
+        bloghit.delete()
+        
     def get(self, request, user_id):
         """블로그 리스트 가져오기"""
         blog = Blog.objects.filter(user_id=user_id)
         serializer = BlogSerializer(blog, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def post(self, request, user_id):
+        """조회수 기능(ip기반)"""
 
+        blog = get_object_or_404(Blog, id=user_id)
+        hit = ArticleHitSerializer.get_client_ip(request)
+        bloghit = BlogHits.objects.filter(blog_id=user_id).values()
+        serializer = BlogHitSerializer(data=request.data)
+
+        if bool(bloghit) is False and request.user.is_authenticated:
+            if serializer.is_valid():
+                blog.hits += 1
+                blog.save()
+                serializer.save(client_ip=hit, blog_id=user_id)
+                threading.Timer(
+                    20, BlogList.timer_delete, args=(user_id, hit)
+                ).start()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response(
+                "동일한 ip주소가 존재하거나 로그인이 안되어 있습니다.", status=status.HTTP_205_RESET_CONTENT
+            )
+            
 class SubscribeView(APIView):
     def get(self, request, blog_name):
         """구독한 특정 유저의 이름, 아이디 목록을 반환"""
