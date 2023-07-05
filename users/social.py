@@ -23,10 +23,10 @@ from rest_framework.response import Response
 
 
 # 소셜 로그인 사용자 정보 전송 URL
-GOOGLE_CALLBACK_URI = os.environ.get("FRONTEND_BASE_URL") + os.environ.get("GOOGLE_SOCIAL_CALLBACK_URI")
-KAKAO_CALLBACK_URI = os.environ.get("FRONTEND_BASE_URL") + os.environ.get("KAKAO_SOCIAL_CALLBACK_URI")
-NAVER_CALLBACK_URI = os.environ.get("FRONTEND_BASE_URL") + os.environ.get("NAVER_SOCIAL_CALLBACK_URI")
-GITHUB_CALLBACK_URI = os.environ.get("FRONTEND_BASE_URL") + os.environ.get("GITHUB_SOCIAL_CALLBACK_URI")
+GOOGLE_CALLBACK_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv("GOOGLE_SOCIAL_CALLBACK_URI")
+KAKAO_CALLBACK_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv("KAKAO_SOCIAL_CALLBACK_URI")
+NAVER_CALLBACK_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv("NAVER_SOCIAL_CALLBACK_URI")
+GITHUB_CALLBACK_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv("GITHUB_SOCIAL_CALLBACK_URI")
 
 
 # 추후 개발 예정
@@ -46,7 +46,7 @@ GITHUB_CALLBACK_URI = os.environ.get("FRONTEND_BASE_URL") + os.environ.get("GITH
 def kakao_login(request):
     """인가 코드 받기 요청"""
     
-    client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
+    client_id = os.getenv("SOCIAL_AUTH_KAKAO_CLIENT_ID")
     return redirect(
         f"https://kauth.kakao.com/oauth/authorize?client_id={client_id}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code&scope=account_email"
     )
@@ -58,7 +58,7 @@ def kakao_callback(request):
     (인가 코드로) 토큰 발급 요청
     Access token, Refresh token
     """
-    client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
+    client_id = os.getenv("SOCIAL_AUTH_KAKAO_CLIENT_ID")
     code = request.GET.get("code")
 
     # code로 access token 요청
