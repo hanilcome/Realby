@@ -30,7 +30,7 @@ class BlogCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = ["blog_name", "blog_intro"]
+        fields = ["blog_name", "blog_title", "blog_intro"]
 
     # def get_blog_subscriptions_count(self, obj):
     #     subscription_count = Subscription.objects.filter(article=obj).count()
