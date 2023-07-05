@@ -31,27 +31,27 @@ DEBUG = os.getenv("DEBUG", "0") == "1"
 ALLOWED_HOSTS = ["*"]
 
 # postgres 환경변수가 존재 할 경우에 postgres db에 연결을 시도합니다.
-POSTGRES_DB = os.getenv("POSTGRES_DB", "")
-if POSTGRES_DB:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": POSTGRES_DB,
-            "USER": os.getenv("POSTGRES_USER", ""),
-            "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-            "HOST": os.getenv("POSTGRES_HOST", ""),
-            "PORT": os.getenv("POSTGRES_PORT", ""),
-        }
-    }
+# POSTGRES_DB = os.getenv("POSTGRES_DB", "")
+# if POSTGRES_DB:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.postgresql",
+#             "NAME": POSTGRES_DB,
+#             "USER": os.getenv("POSTGRES_USER", ""),
+#             "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
+#             "HOST": os.getenv("POSTGRES_HOST", ""),
+#             "PORT": os.getenv("POSTGRES_PORT", ""),
+#         }
+#     }
 
-# 환경변수가 존재하지 않을 경우 sqlite3을 사용합니다.
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
+# # 환경변수가 존재하지 않을 경우 sqlite3을 사용합니다.
+# else:
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
+}
 
 
 # Password validation
@@ -97,7 +97,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6380)],
+            "hosts": [("127.0.0.1", 6379)],
         },
     },
 }
