@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # 환경변수에 따라 DEBUG모드 여부를 결정합니다.
-DEBUG = os.environ.get("DEBUG", "0") == "1"
+DEBUG = os.getenv("DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = ["*"]
 
@@ -37,10 +37,10 @@ ALLOWED_HOSTS = ["*"]
 #         "default": {
 #             "ENGINE": "django.db.backends.postgresql",
 #             "NAME": POSTGRES_DB,
-#             "USER": os.environ.get("POSTGRES_USER", ""),
-#             "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
-#             "HOST": os.environ.get("POSTGRES_HOST", ""),
-#             "PORT": os.environ.get("POSTGRES_PORT", ""),
+#             "USER": os.getenv("POSTGRES_USER", ""),
+#             "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
+#             "HOST": os.getenv("POSTGRES_HOST", ""),
+#             "PORT": os.getenv("POSTGRES_PORT", ""),
 #         }
 #     }
 
@@ -230,8 +230,8 @@ SIMPLE_JWT = {
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
