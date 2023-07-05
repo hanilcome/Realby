@@ -1,13 +1,17 @@
 from django.db import models
 from users.models import User
 from ckeditor.fields import RichTextField
+from django.core.validators import RegexValidator
+from django.core.validators import MinLengthValidator
 
 
 class Blog(models.Model):
     """블로그"""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="블로거")
-    blog_name = models.CharField(max_length=30, unique=True)
+    alphanumeric = RegexValidator(r'^[a-zA-Z]*$', '오직 영문자/숫자 만 허용 됩니다.')
+    blog_name = models.CharField(max_length=30, validators=[MinLengthValidator(1), alphanumeric], unique=True)
+    blog_title = models.CharField(max_length=30, unique=True)
     blog_intro = models.TextField(blank=True, null=True)
     hits = models.PositiveIntegerField(default=0, verbose_name="방문자수")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="개설일")
