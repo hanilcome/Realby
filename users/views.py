@@ -22,21 +22,31 @@ class UserView(APIView):
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
+
         if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "유저 인증용 이메일을 전송했습니다."}, status=status.HTTP_201_CREATED
-            )
+            # 이미 존재하는 유저인지 확인
+            email = serializer.validated_data.get('email')
+            
+            # 존재할 경우
+            if User.objects.filter(email=email).exists():
+                return Response({"message": "이미 존재하는 유저입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            # 새로운 유저일 경우
+            else:
+                serializer.save()
+                return Response(
+                    {"message": "유저 인증용 이메일을 전송했습니다."}, status=status.HTTP_201_CREATED
+                )
         else:
             return Response(
                 {"message": f"${serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST
             )
+        
 
 
 class EmailVerifyView(APIView):
     """이메일 인증"""
 
-    def get(self, request, uidb64, token):
+    def get(self, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
