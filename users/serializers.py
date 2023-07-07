@@ -76,6 +76,7 @@ class UserSerializer(serializers.ModelSerializer):
         email = EmailMessage(
             f"RealBy : {user.username}님의 이메일 인증",
             f"아래의 링크를 눌러 이메일 인증을 완료해주세요.\n\nhttp://0.0.0.0:3000/auth/emailverify/{uidb64}/{token}",
+#             f"아래의 링크를 눌러 이메일 인증을 완료해주세요.\n\nhttps:www.realbyback.shop/users/verify/{uidb64}/{token}",
             to=[to_email],
         )
         email.send()
