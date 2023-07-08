@@ -6,14 +6,21 @@ from datetime import date
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, username, password=None):
+    def create_user(
+        self,
+        email,
+        username,
+        profile_img=None,
+        password=None,
+    ):
         if not email:
             raise ValueError("이메일을 입력하세요")
         if not username:
             raise ValueError("닉네임을 입력하세요")  # email, username을 필수값으로 지정
         user = self.model(
             username=username,
-            email=self.normalize_email(email),  # email 정규화한 후,
+            email=self.normalize_email(email),
+            profile_img=None,  # email 정규화한 후,
         )  # 유저 생성
 
         user.set_password(password)  # 생성된 유저의 password는 set_password 메서드로 해시화하여 안전하게 저장
@@ -25,6 +32,7 @@ class UserManager(BaseUserManager):
             email,
             username,
             password=password,
+            profile_img=None,
         )  # 일반 유저를 생성한 후,
         user.is_admin = True  # 해당 유저를 관리자로 설정
         user.is_active = 1  # superuser가 이메일 인증 안하게!
@@ -34,12 +42,27 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     class UserTypeChoices(models.TextChoices):
-        KAKAO = ("kakao","카카오",)
-        GITHUB = ("github","깃허브",)
-        GOOGLE = ("google","구글",)
-        NAVER = ("naver","네이버",)
-        NORMAL = ("normal","일반",)
-        
+        KAKAO = (
+            "kakao",
+            "카카오",
+        )
+        GITHUB = (
+            "github",
+            "깃허브",
+        )
+        GOOGLE = (
+            "google",
+            "구글",
+        )
+        NAVER = (
+            "naver",
+            "네이버",
+        )
+        NORMAL = (
+            "normal",
+            "일반",
+        )
+
     email = models.EmailField("이메일", max_length=255, unique=True)
     username = models.CharField("닉네임", max_length=50, unique=True)
     birthdate = models.DateField(
@@ -53,7 +76,11 @@ class User(AbstractBaseUser):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
-    user_type = models.CharField(max_length=15,choices=UserTypeChoices.choices,default="NORMAL",)
+    user_type = models.CharField(
+        max_length=15,
+        choices=UserTypeChoices.choices,
+        default="NORMAL",
+    )
 
     objects = UserManager()
 

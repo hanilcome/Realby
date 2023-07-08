@@ -3,6 +3,7 @@ from django.utils.http import urlsafe_base64_decode
 from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.shortcuts import redirect
 from rest_framework import status, permissions
 from django.db.models.query_utils import Q
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -25,12 +26,14 @@ class UserView(APIView):
 
         if serializer.is_valid():
             # 이미 존재하는 유저인지 확인
-            email = serializer.validated_data.get('email')
-            
+            email = serializer.validated_data.get("email")
+
             # 존재할 경우
             if User.objects.filter(email=email).exists():
-                return Response({"message": "이미 존재하는 유저입니다."}, status=status.HTTP_400_BAD_REQUEST)
-            # 새로운 유저일 경우
+                return Response(
+                    {"message": "이미 존재하는 유저입니다."}, status=status.HTTP_400_BAD_REQUEST
+                )
+            # 새로운 유저일 경우=
             else:
                 serializer.save()
                 return Response(
@@ -40,19 +43,18 @@ class UserView(APIView):
             return Response(
                 {"message": f"${serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST
             )
-        
 
 
 class EmailVerifyView(APIView):
     """이메일 인증"""
 
-    def get(self, uidb64, token):
+    def get(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
             if user_verify_token.check_token(user, token):
                 User.objects.filter(pk=uid).update(is_active=True)
-                return Response({"message": "이메일 인증 완료"}, status=status.HTTP_200_OK)
+                return redirect("http://127.0.0.1:3000/auth/login")
             return Response({"error": "인증 실패"}, status=status.HTTP_400_BAD_REQUEST)
         except KeyError:
             return Response({"error": "KEY ERROR"}, status=status.HTTP_400_BAD_REQUEST)

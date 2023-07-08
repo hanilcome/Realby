@@ -38,6 +38,9 @@ NAVER_CALLBACK_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv(
 GITHUB_CALLBACK_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv(
     "GITHUB_SOCIAL_CALLBACK_URI"
 )
+KAKAO_SOCIAL_LOGOUT_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv(
+    "KAKAO_SOCIAL_LOGOUT_URI"
+)
 
 
 # 추후 개발 예정
@@ -53,13 +56,22 @@ GITHUB_CALLBACK_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv(
 #     client_class = OAuth2Client
 
 
-# 카카오 소셜 로그인
+# 카카-오 소셜 로그인
 def kakao_login(request):
     """인가 코드 받기 요청"""
 
     client_id = os.getenv("KAKAO_REST_API_KEY")
     return redirect(
-        f"https://kauth.kakao.com/oauth/authorize?client_id={client_id}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code&scope=account_email"
+        f"https://kauth.kakao.com/oauth/authorize?client_id={client_id}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code&scope=account_email,profile_nickname,profile_image"
+    )
+
+
+def kakao_logout(request):
+    """인가 코드 받기 요청"""
+
+    client_id = os.getenv("KAKAO_REST_API_KEY")
+    return redirect(
+        f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={KAKAO_SOCIAL_LOGOUT_URI}"
     )
 
 
@@ -101,6 +113,7 @@ def kakao_callback(request):
     kakao_account = profile_json.get("kakao_account")
     email = kakao_account.get("email", None)  # 이메일!
     profile = kakao_account.get("profile")
+    profile_img = profile.get("profile_image_url", None)
     username = profile.get("nickname", None)
 
     # 이메일 없으면 오류 => 카카오톡 최신 버전에서는 이메일 없이 가입 가능해서 추후 수정해야함
@@ -121,7 +134,9 @@ def kakao_callback(request):
         )
 
     except User.DoesNotExist:
-        user = User.objects.create_user(email=email, username=username)
+        user = User.objects.create_user(
+            email=email, username=username, profile_img=profile_img
+        )
         user.email = email
         user.is_active = True
         user.user_type = User.UserTypeChoices.KAKAO
@@ -141,31 +156,36 @@ class CustomJSONDecodeError(APIException):
     default_detail = "Error occurred during JSON decoding."  # 오류 메시지
 
 
-class KakaoLogin(SocialLoginView):
-    """카카오 소셜 로그인"""
+# class KakaoLogin(SocialLoginView):
+#     """카카오 소셜 로그인"""
 
-    adapter_class = KakaoOAuth2Adapter
-    callbakc_url = KAKAO_CALLBACK_URI
-    client_class = OAuth2Client
+#     adapter_class = KakaoOAuth2Adapter
+#     callbakc_url = KAKAO_CALLBACK_URI
+#     client_class = OAuth2Client
 
-    def post(self, request, *args, **kwargs):
-        accept = super().post(request, *args, **kwargs)
-        accept_status = accept.status_code
-        if accept_status != 200:
-            raise CustomJSONDecodeError()
+#     def post(self, request, *args, **kwargs):
+#         print(1)
+#         print(request.data)
+#         accept = super().post(request, *args, **kwargs)
+#         print(2)
+#         accept_status = accept.status_code
+#         print(3)
+#         if accept_status != 200:
+#             raise CustomJSONDecodeError()
 
-        user = User.objects.get(email=request.data["email"])
-        if user.is_active:
-            refresh_token = LoginViewSerializer.get_token(user)
-            return Response(
-                data={
-                    "refresh_token": str(refresh_token),
-                    "access_token": str(refresh_token.access_token),
-                },
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response({"message": "없는 유저입니다"}, status=status.HTTP_400_BAD_REQUEST)
+#         user = User.objects.get(email=request.data["email"])
+#         if user.is_active:
+#             print(4)
+#             refresh_token = LoginViewSerializer.get_token(user)
+#             return Response(
+#                 data={
+#                     "refresh_token": str(refresh_token),
+#                     "access_token": str(refresh_token.access_token),
+#                 },
+#                 status=status.HTTP_200_OK,
+#             )
+#         else:
+#             return Response({"message": "없는 유저입니다"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # 추후 개발 예정
