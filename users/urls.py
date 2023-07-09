@@ -17,7 +17,8 @@ urlpatterns = [
     path("logout/", views.LogoutView.as_view(), name="logout"),
     path("kakao/login/", social.kakao_login, name="kakao_login"),
     path("kakao/callback/", social.kakao_callback, name="kakao_login"),
-    path("kakao/complete/", social.KakaoLogin.as_view(), name="kakao_login"),
+    path("kakao/logout/", social.kakao_logout, name="kakao_logout"),
+    # path("kakao/complete/", social.KakaoLogin.as_view(), name="kakao_login"),
     # 추후 개발 예정
     # path("naver/login/", social.NaverLogin.as_view(), name="naver_login"),
     # path("naver/callback/", social.NaverLogin.as_view(), name="naver_login"),
