@@ -38,9 +38,6 @@ NAVER_CALLBACK_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv(
 GITHUB_CALLBACK_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv(
     "GITHUB_SOCIAL_CALLBACK_URI"
 )
-KAKAO_SOCIAL_LOGOUT_URI = os.getenv("FRONTEND_BASE_URL") + os.getenv(
-    "KAKAO_SOCIAL_LOGOUT_URI"
-)
 
 
 # 추후 개발 예정
@@ -71,7 +68,7 @@ def kakao_logout(request):
 
     client_id = os.getenv("KAKAO_REST_API_KEY")
     return redirect(
-        f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={KAKAO_SOCIAL_LOGOUT_URI}"
+        f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri=http://localhost:3000/"
     )
 
 
