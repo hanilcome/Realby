@@ -31,7 +31,7 @@ DEBUG = os.getenv("DEBUG", "0") == "1"
 ALLOWED_HOSTS = ["*"]
 
 # postgres 환경변수가 존재 할 경우에 postgres db에 연결을 시도합니다.
-POSTGRES_DB = os.getenv("POSTGRES_DB", "")
+# POSTGRES_DB = os.getenv("POSTGRES_DB", "")
 # if POSTGRES_DB:
 #     DATABASES = {
 #         "default": {
@@ -104,7 +104,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6380)],
+            "hosts": [("127.0.0.1", 6379)],
         },
     },
 }

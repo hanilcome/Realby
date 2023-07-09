@@ -9,7 +9,7 @@ class Blog(models.Model):
     """블로그"""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="블로거")
-    alphanumeric = RegexValidator(r'^[a-zA-Z]*$', '오직 영문자/숫자 만 허용 됩니다.')
+    alphanumeric = RegexValidator(r'^[a-zA-Z]*$', '오직 영문자만 허용 됩니다.')
     blog_name = models.CharField(max_length=30, validators=[MinLengthValidator(1), alphanumeric], unique=True)
     blog_title = models.CharField(max_length=30, unique=True)
     blog_intro = models.TextField(blank=True, null=True)
