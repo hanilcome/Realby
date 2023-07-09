@@ -25,31 +25,31 @@ class LoginViewSerializer(TokenObtainPairSerializer):
         # Add custom claims
         token["username"] = user.username
         token["email"] = user.email
+        token["user_type"] = user.user_type
 
         return token
 
-    def validate(self, attrs):
-        data = super().validate(attrs)
+    # def validate(self, attrs):
+    #     data = super().validate(attrs)
 
-        # Refresh Token을 HTTP-only 쿠키에 저장
-        refresh_token = data["refresh"]
-        self.set_cookie("refresh", refresh_token)  # ("쿠키 키값", 쿠키값) 
+    #     # Refresh Token을 HTTP-only 쿠키에 저장
+    #     refresh_token = data["refresh"]
+    #     self.set_cookie("refresh", refresh_token)  # ("쿠키 키값", 쿠키값)
 
-        # Access Token을 헤더에 담아 전달
-        access_token = data["access"]
-        self.set_header("Authorization", f"Bearer {access_token}")
+    #     # Access Token을 헤더에 담아 전달
+    #     access_token = data["access"]
+    #     self.set_header("Authorization", f"Bearer {access_token}")
+    #     return data
 
-        return data
+    # def set_cookie(self, key, value):
+    #     response = HttpResponse()
+    #     response.set_cookie(key, value, httponly=True)
+    #     self._response = response
 
-    def set_cookie(self, key, value):
-        response = HttpResponse()
-        response.set_cookie(key, value, httponly=True)
-        self._response = response
-
-    def set_header(self, key, value):
-        response = HttpResponse()
-        response[key] = value
-        self._response = response
+    # def set_header(self, key, value):
+    #     response = HttpResponse()
+    #     response[key] = value
+    #     self._response = response
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -74,8 +74,9 @@ class UserSerializer(serializers.ModelSerializer):
         token = user_verify_token.make_token(user)
         to_email = user.email
         email = EmailMessage(
-            f"RealBy : {user.username}님의 이메일 인증",
-            f"아래의 링크를 눌러 이메일 인증을 완료해주세요.\n\nhttps:www.realbyback.shop/users/verify/{uidb64}/{token}",
+            f"Realby : {user.username}님의 이메일 인증",
+            f"아래의 링크를 눌러 이메일 인증을 완료해주세요.\n\nhttp://127.0.0.1:8000/users/verify/{uidb64}/{token}/",
+            #             f"아래의 링크를 눌러 이메일 인증을 완료해주세요.\n\nhttps:www.realbyback.shop/users/verify/{uidb64}/{token}",
             to=[to_email],
         )
         email.send()

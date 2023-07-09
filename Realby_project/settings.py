@@ -44,7 +44,7 @@ ALLOWED_HOSTS = ["*"]
 #         }
 #     }
 
-# # 환경변수가 존재하지 않을 경우 sqlite3을 사용합니다.
+# 환경변수가 존재하지 않을 경우 sqlite3을 사용합니다.
 # else:
 DATABASES = {
     "default": {
@@ -53,6 +53,13 @@ DATABASES = {
     }
 }
 
+REST_AUTH = {
+    "USE_JWT": True,
+    "JWT_AUTH_HTTPONLY": False,
+    "JWT_AUTH_REFRESH_COOKIE": "refresh_token",
+    "JWT_AUTH_COOKIE_USE_CSRF": True,
+    "SESSION_LOGIN": False,
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -111,6 +118,16 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 
+SOCIALACCOUNT_PROVIDERS = {
+    "kakao": {
+        "APP": {
+            "client_id": os.getenv("KAKAO_REST_API_KEY"),
+            "secret": os.getenv("KAKAO_SECRET_KEY"),
+            "key": "",
+        }
+    }
+}
+
 REST_FRAMEWORK = {
     # "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -137,7 +154,7 @@ TEMPLATES = [
         "DIRS": [],
         "APP_DIRS": True,
         "OPTIONS": {
-            'debug': True,
+            "debug": True,
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
@@ -237,7 +254,9 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 NEXTJS_SETTINGS = {"nextjs_server_url": "https://realby-vinylstage.vercel.app/"}
 
-CORS_ALLOWED_WHITELIST = ["https://www.realbyback.shop", ]
+CORS_ALLOWED_WHITELIST = [
+    "https://www.realbyback.shop",
+]
 
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_WHITELIST
 
