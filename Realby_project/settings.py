@@ -251,7 +251,7 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-NEXTJS_SETTINGS = {"nextjs_server_url": "https://realby-vinylstage.vercel.app/"}
+NEXTJS_SETTINGS = {"nextjs_server_url": "https://www.realbysurvivors.com/"}
 
 CORS_ALLOWED_WHITELIST = [
     "https://www.realbyback.shop",
