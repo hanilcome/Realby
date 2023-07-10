@@ -68,7 +68,7 @@ def kakao_logout(request):
 
     client_id = os.getenv("KAKAO_REST_API_KEY")
     return redirect(
-        f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri=http://localhost:3000/"
+        f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri=https://realby-vinylstage.vercel.app/"
     )
 
 
